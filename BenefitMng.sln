@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "BenefitMng", "..\..\WebSites\BenefitMng\", "{6825414D-B696-4871-8068-2C0CDA11E84C}"
+	ProjectSection(WebsiteProperties) = preProject
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.5"
+		Debug.AspNetCompiler.VirtualPath = "/localhost_58230"
+		Debug.AspNetCompiler.PhysicalPath = "..\..\WebSites\BenefitMng\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_58230\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/localhost_58230"
+		Release.AspNetCompiler.PhysicalPath = "..\..\WebSites\BenefitMng\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_58230\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "58230"
+		SlnRelativePath = "..\..\WebSites\BenefitMng\"
+		DefaultWebSiteLanguage = "Visual C#"
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6825414D-B696-4871-8068-2C0CDA11E84C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6825414D-B696-4871-8068-2C0CDA11E84C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
