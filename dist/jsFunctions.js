@@ -1,8 +1,4 @@
-﻿function onLoad() {
-    //$('fldSourceEnv').data('pre', $('fldSourceEnv').val());
-    //$('fldSrchCenterID').data('pre', $('fldSrchCenterID').val());
-}
-
+﻿
 function btnConfiguration(btnType, btnYFunc, btnNFunc) {
     if (btnType == 1) {
         var btnConfig =
@@ -50,6 +46,18 @@ function openMsg(text, btnType, btnYFunc, btnNFunc) {
     });
     $('#ctlDialog').dialog('option', 'buttons', btnConfiguration(btnType, btnYFunc, btnNFunc));
 }
+function savePreValues() {
+    $("#fldSrchCenterID").data('pre', $("#fldSrchCenterID").val());
+    $("#fldSourceEnv").data('pre', $("#fldSourceEnv").val());
+
+}
+function setPreValues() {
+    var before_change = $("#fldSrchCenterID").data('pre');
+    $get("fldSrchCenterID").value = before_change;
+    before_change = $("#fldSourceEnv").data('pre');
+    $get("fldSourceEnv").value = before_change;
+
+}
 
 function checkClearSelectionNode() {
     if ($get("nodeDataChanged").value == "1")
@@ -73,175 +81,7 @@ function clearSelectedNode() {
     $get("fldTeamTorType").value = "";
 }
 
-function setPreValues() {
-    var before_change = $("#fldSrchCenterID").data('pre');
-    $get("fldSrchCenterID").value = before_change;
-    before_change = $("#fldSourceEnv").data('pre');
-    $get("fldSourceEnv").value = before_change;
 
-}
-
-function getTeamTrees() {
-    if ($get("treeDataChanged").value == "1")
-        openMsg('בוצע שינוי במחלקות/צוותים - האם לצאת ללא שמירה ?', 2, 'getTeamTreesAfter();','setPreValues();');
-    else
-        getTeamTreesAfter();
-}
-
-function getOtherTrees() {
-    var otherTreeData = "";
-    var checked = $('input[type=radio]:checked', '#rblSearchTrees').val();
-    $('#OtherTeams')[0].style.display = "";
-    if (checked) {
-        var otherTreeData = "";
-        var centerID = $get("fldSrchCenterID").value;
-        var sourceEnv = $get("fldSourceEnv").value;
-        if (checked == "TeamTree")
-            otherTreeData = getTeamsData(centerID, sourceEnv, 1);
-        if (checked == "DeprTree")
-            otherTreeData = getTeamsData(centerID, sourceEnv, 2);
-        if (otherTreeData != "שגיאה" && otherTreeData != "") {
-            show_tree("otherTeamTree", otherTreeData);
-        }
-    }
-}
-function getTeamTreesAfter() {
-    clearSelectedNode();
-    $get("treeDataChanged").value = "0";
-    $("#fldSrchCenterID").data('pre', $("#fldSrchCenterID").val());
-    $("#fldSourceEnv").data('pre', $("#fldSourceEnv").val());
-    var centerID = $get("fldSrchCenterID").value;
-    var sourceEnv = $get("fldSourceEnv").value;
-    if (centerID != "" && sourceEnv != "") {
-        var teamsData = getTeamsData(centerID, sourceEnv);
-        if (teamsData != "שגיאה") {
-            show_tree("centerTeamTree", teamsData);
-        }
-        getOtherTrees();
-    }
-    else {
-        $("centerTeamTree").jstree("destroy");
-        $("otherTeamTree").jstree("destroy");
-        $('#OtherTeams')[0].style.display = "none";
-    }
-}
-function getTeamsData(centerID, sourceEnv, other) {
-    try {
-        var srch = '';
-        srch = getFldJSONsrch(srch, 'fldCenterID', centerID, 'string');
-        srch = getFldJSONsrch(srch, 'fldSourceEnv', sourceEnv, 'string');
-        if (other == 1 || other == 2)
-            srch = getFldJSONsrch(srch, 'fldOtherTeams', other, 'int');
-        else
-            srch = getFldJSONsrch(srch, 'fldOtherTeams', 0, 'int');
-        var data = getJQAJAX("srvHarel.asmx/departmentsData", '{' + srch + '}', false, 1);
-        if (data.data && data.data.length > 0) {
-            if (other == 1)
-                var json_data = JSON.parse(getJsonTreeData(data.data, 2, null, "team"));
-            else if (other == 2)
-                var json_data = JSON.parse(getJsonTreeData(data.data, 2, null, "depr"));
-            else
-                var json_data = JSON.parse(getJsonTreeData(data.data, 1, "depr", "team"));
-            return json_data;
-        }
-        else {
-            if (typeof (data.data) == "undefined") {
-                openMsg("שגיאה בקריאה לפרוצדורה של צוותים", 1);
-
-                top.status = "Error In getJsonTreeData:" + e.message.toString();
-                return "שגיאה";
-            }
-            if (data.data && data.data.length == 0) {
-                openMsg("לא נמצאו צוותים למוקד", 1);
-                return "שגיאה";
-            }
-        }
-    } catch (e) {
-        openMsg("שגיאה בטעינת צוותים", 1);
-        top.status = "Error In getTeamsData:" + e.message.toString();
-        return "שגיאה";
-    }
-}
-
-function show_tree(treeID, json_data) {
-    try {
-        treeID = "#" + treeID;
-        $(treeID).jstree("destroy");
-        if (treeID.indexOf("other") > -1) {
-            $(treeID).jstree({
-                "core": {
-                    "check_callback": function (op, node, par, pos, more) {
-                        //if ((op === "move_node" || op === "copy_node") && node.type && node.type == "depr") {
-                        //    return false;
-                        //}
-                        return true;
-                    },
-                    "data": json_data
-
-                },
-                "types": {
-                    "team": {
-                        "icon": "dist/themes/default/team.png",
-                        "valid_children": []
-                    },
-                    "depr": {
-                        "icon": "dist/themes/default/depr.png",
-                        "valid_children": []
-                    },
-                    "#": {
-                        "valid_children": []
-                    }
-                },
-                'search': {
-                    'case_insensitive': true,
-                    'show_only_matches': true
-                },
-                'dnd': {
-                    'always_copy': false
-                },
-                "plugins": ["dnd", "types", "search"]
-            });
-
-            $('#fldSearchTeams').keyup(function () {
-                $(treeID).jstree(true).show_all();
-                $(treeID).jstree('search', $(this).val());
-            });
-        }
-        else {
-            $(treeID).jstree({
-                "core": {
-                    "check_callback": function (op, node, par, pos, more) {
-                        //if ((op === "move_node" || op === "copy_node") && node.type && node.type == "depr") {
-                        //    return false;
-                        //}
-                        return true;
-                    },
-                    "data": json_data
-
-                },
-                "types": {
-                    "team": {
-                        "icon": "dist/themes/default/team.png",
-                        "valid_children": []
-                    },
-                    "depr": {
-                        "icon": "dist/themes/default/depr.png",
-                        "valid_children": ["team"]
-                    },
-                    "#": {
-                        "valid_children": ["depr"]
-                    }
-                },
-                "plugins": ["contextmenu", "unique", "dnd", "types"]
-            });
-            // $get("cntlPanel").style.display = "";
-        }
-    }
-    catch (e) {
-        openMsg("שגיאה בטעינת צוותים", 1);
-        top.status = "Error In show_tree:" + e.message.toString();
-    }
-}
 
 function getJsonTreeData(data, treeLevel, RootLevelType, InLevelType) {
     if (treeLevel == 1) {
@@ -277,7 +117,8 @@ function getJsonTreeData(data, treeLevel, RootLevelType, InLevelType) {
     return json_data;
 }
 
-function saveTreeData(treeID) {
+function checkMngMustFields()
+{
     if ($get("fldMngNote").value == '') {
         $get("fldMngNote").style.backgroundColor = 'red';
         openMsg('חובה להזין הערה ל- MNG', 1)
@@ -291,27 +132,23 @@ function saveTreeData(treeID) {
     }
     $get("fldTargetEnv").style.backgroundColor = '';
     $get("fldMngNote").style.backgroundColor = '';
+    return true;
+}
+
+function getDataForSaveTree(treeID)
+{
     var v = $(treeID).jstree(true).get_json('#', { flat: true });
     var newData = '[';
     for (var i = 0; i < v.length; i++) {
         //if (typeof (v[i].a_attr.class) != "undefined" && v[i].a_attr.class == "nodeChanged") {
-            var json_data = '{ "id" : ' + JSON.stringify(v[i].id) + ',"parent" : ' + JSON.stringify(v[i].parent) + ' ,"nodeText" : ' + JSON.stringify(v[i].text) + ' ,"data" : ' + JSON.stringify(v[i].data.toString()) + '},';
-            newData = newData + json_data;
+        var json_data = '{ "id" : ' + JSON.stringify(v[i].id) + ',"parent" : ' + JSON.stringify(v[i].parent) + ' ,"nodeText" : ' + JSON.stringify(v[i].text) + ' ,"data" : ' + JSON.stringify(v[i].data.toString()) + '},';
+        newData = newData + json_data;
         //}
     }
     newData = newData.substring(0, newData.length - 1);
     newData = newData + ']';
-    var srch = '';
-    srch = getFldJSONsrch(srch, 'fldCenterID', $get("fldSrchCenterID").value, 'int');
-    srch = getFldJSONsrch(srch, 'fldTargetEnv', $get("fldTargetEnv").value, 'int');
-    srch = getFldJSONsrch(srch, 'fldMngNote', $get("fldMngNote").value, 'string');
-    srch = getFldJSONsrch(srch, 'doc', newData, 'string');
-
-    var data = getJQAJAX("srvHarel.asmx/updateDeprTeamTree", '{' + srch + '}', false, 1);
-    $get("treeDataChanged").value = "0";
-    getTeamTrees();
+    return newData;
 }
-
 
 function saveNodeData(treeID) {
     var obj = $(treeID).jstree("get_selected", true);
@@ -320,8 +157,9 @@ function saveNodeData(treeID) {
     var data = '{' + newData + '}';
     obj[0].data.pop();
     obj[0].data.push(data);
-    $(treeID).jstree(true).refresh_node(obj[0].id);
     dataChanged(0);
+    $(treeID).jstree(true).refresh_node(obj[0].id);
+    
 }
 
 function dataChanged(change) {
@@ -332,7 +170,6 @@ function getJsonDataFromFields(fieldSetID) {
     var data = bnft_getJSON($get(fieldSetID));
     return data;
 }
-
 function setJsonDataToFields(obj) {
     //Example: var jsonResult = '{"fldSekerId": "retr","fldTeamTorType": "1"}';
     var jsonData = obj.data;
@@ -491,7 +328,6 @@ function getJQAJAX(sUrl, sSrch, bAsync, returnJson) {
         return JSON.parse(JSON.parse(ret.responseText).d);
     else return '';
 }
-
 function checkContextMenuAvailabilty(data, action) {
     var inst = $.jstree.reference(data.reference),
 	obj = inst.get_node(data.reference);
@@ -512,7 +348,7 @@ function getContextMenuLabel(data, action) {
         return "צור מחלקה חדשה";
     if (("depr,team".indexOf(objType) > -1) && (action == "remove_center"))
     {
-        if (obj.data.toString().indexOf("fldRemove") > -1)
+        if (obj.data && obj.data.toString().indexOf("fldRemove") > -1)
             return "החזר קישור למוקד";
         else
             return "מחר קישור למוקד";

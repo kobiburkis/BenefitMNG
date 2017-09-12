@@ -7,6 +7,7 @@
   <meta charset="utf-8">
   <title>דף ניהול צוותים</title>
   <bnft:HeaderImports runat="server" />
+  <script type="text/javascript" src="dist/jsMngTeams.js"></script>
 </head>
 <body onload="onLoad();">
     <bnft:Header runat="server" />

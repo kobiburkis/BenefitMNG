@@ -58,7 +58,7 @@ public class srvHarel : System.Web.Services.WebService
                 new SqlParameter("@fldMngNote", fldMngNote),
                 DataTblParam
                 );
-            return Newtonsoft.Json.JsonConvert.SerializeObject("success", Newtonsoft.Json.Formatting.Indented);
+            return Newtonsoft.Json.JsonConvert.SerializeObject(ds, Newtonsoft.Json.Formatting.Indented);
         }
         catch (Exception ex)
         {
@@ -89,7 +89,7 @@ public class srvHarel : System.Web.Services.WebService
         }
         catch (Exception ex) {
             DataTable table = new DataTable();
-            table.TableName = "Err";
+            table.TableName = "err";
             table.Columns.Add("ErrorMsg");
             table.Columns.Add("ErrorNumber");
             table.Rows.Add(ex.HResult, ex.Message);
