@@ -1,0 +1,81 @@
+﻿.lbl {
+    font-size:14px;font-family:Arial;font-weight:normal;COLOR: #095da0;width:100px;margin-left:10px;
+}
+.radioBtn{
+    font-size:14px;font-family:Arial;font-weight:normal;COLOR: #095da0;margin-left:10px;
+}
+.lblInner {
+    font-size:14px;font-family:Arial;font-weight:normal;COLOR: #095da0;width:100px;margin-left:30px;
+}
+.lblTitle {
+    font-size:14px;font-family:Arial;font-weight:bold;COLOR: #095da0; margin-bottom:20px;
+}
+.fldTable {
+   width:150px;margin-left:10px;
+}
+.btnH {
+  margin-right:50px;
+  padding: 7px 15px;
+  font-size: 16px;
+  text-align: center;
+  cursor: pointer;
+  outline: none;
+  color: #fff;
+  background-color:#095da0;
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 3px #999;
+}
+.btnH:hover {background-color: #095da0;opacity:0.5;}
+.btnH:active {
+  background-color: #095da0;
+  opacity:0.5;
+  box-shadow: 0 5px #666;
+  transform: translateY(4px);
+}
+.btnH_small{
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 8px;
+}
+.myTreeLocation{
+   margin-right:50px;
+   margin-top:10px;
+}
+.page-ttl {
+	FONT-SIZE: 1.25em; 
+	font-weight:bold;
+	FLOAT: right; 
+	MARGIN: 0.3em 0.5em 0 0; 
+	COLOR: #095da0; 
+	LINE-HEIGHT: 1.2em;
+}
+.content-header{
+	WIDTH: 100%;
+	PADDING-BOTTOM: 0.25em; 
+	MARGIN: 0 auto 14px; 
+	BORDER-BOTTOM: #dfdfdf 4px solid
+}
+.content-fields{
+	WIDTH: 100%;
+	PADDING-BOTTOM: 0.25em; 
+	/*MARGIN: 0 auto 14px;*/ 
+	BORDER: #dfdfdf 4px solid;
+}
+fieldset {
+    border: 0px;
+}
+.nodeChanged {
+    color:blue;
+    font-weight:bold;
+}
+.nodeDeleted {
+    color: gray;
+    opacity: 0.7;
+}
+.dialogText
+{
+    font-family: Arial;
+    font-size: 18px;
+    color:black;
+}
