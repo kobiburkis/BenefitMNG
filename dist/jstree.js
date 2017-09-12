@@ -3149,7 +3149,7 @@
 		select_node : function (obj, supress_event, prevent_open, e) {
 		    var dom, t1, t2, th;
 		    var selectedNode = $get("selectedNode").value;
-		    if (obj != selectedNode && selectedNode!= '')
+		    if (typeof(obj) == "object" && obj.id != selectedNode && selectedNode!= '')
 		        checkClearSelectionNode();
 			if($.isArray(obj)) {
 				obj = obj.slice();

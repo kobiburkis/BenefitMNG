@@ -60,7 +60,8 @@ function checkClearSelectionNode() {
 function backToSelectedNode ()
 {
     var selectedNode = $get("selectedNode").value;
-    $("#" + selectedNode).trigger("click");
+    $("#centerTeamTree").jstree("deselect_node", $(centerTeamTree).jstree("get_selected", true)[0]).trigger("deselect_node.jstree");
+    $("#centerTeamTree").jstree("select_node", $.jstree.reference(centerTeamTree)._model.data[selectedNode]).trigger("select_node.jstree");
 }
    
 
