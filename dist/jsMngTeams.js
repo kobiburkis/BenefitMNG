@@ -134,8 +134,8 @@ function saveTreeData(treeID) {
             getTeamTrees();
         }
         else {
-            if (data && data.err)
-                openMsg(data.err["ErrorMsg"], 1);
+            if (data && data.err && data.err.length>0)
+                openMsg(data.err[0]["ErrorMsg"], 1);
             else
                 openMsg('שגיאה בשמירת שינויים', 1);
         }

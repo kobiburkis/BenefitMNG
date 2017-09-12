@@ -90,8 +90,8 @@ public class srvHarel : System.Web.Services.WebService
         catch (Exception ex) {
             DataTable table = new DataTable();
             table.TableName = "err";
-            table.Columns.Add("ErrorMsg");
             table.Columns.Add("ErrorNumber");
+            table.Columns.Add("ErrorMsg");
             table.Rows.Add(ex.HResult, ex.Message);
             ds.Tables.Add(table);
             return ds;
