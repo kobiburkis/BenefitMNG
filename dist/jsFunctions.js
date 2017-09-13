@@ -1,5 +1,4 @@
-﻿
-function btnConfiguration(btnType, btnYFunc, btnNFunc) {
+﻿function btnConfiguration(btnType, btnYFunc, btnNFunc) {
     if (btnType == 1) {
         var btnConfig =
             {
@@ -26,7 +25,6 @@ function btnConfiguration(btnType, btnYFunc, btnNFunc) {
     }
     return btnConfig;
 }
-
 function openMsg(text, btnType, btnYFunc, btnNFunc) {
     $get("dialogText").innerText = text;
     //$("#dialogIcon").addClass('ui-icon-alert');
@@ -59,28 +57,40 @@ function setPreValues() {
 
 }
 
-function checkClearSelectionNode() {
-    if ($get("nodeDataChanged").value == "1")
-        openMsg('בוצע שינוי בצוות - האם לצאת ללא שמירה ?', 2, 'clearSelectedNode();','backToSelectedNode();');
-    else
-        clearSelectedNode();
+function getChangeNodeMsg(treeID, objID) {
+    if (treeID == 'centerTeamTree')
+        return 'בוצע שינוי בצוות - האם לצאת ללא שמירה ?';
+    return 'בוצעו שינויים - האם לצאת ללא שמירה';
 }
-function backToSelectedNode ()
+
+function checkClearSelectionNode(treeID, objID) {
+    if ($get("nodeDataChanged").value == "1") {
+        var funcAfterYes = "clearSelectedNode('" + treeID + "'," + objID + ")";
+        var funcAfterNo = "backToSelectedNode('" + treeID + "')";
+        var msg = getChangeNodeMsg(treeID, objID);
+        openMsg(msg, 2, funcAfterYes, funcAfterNo);
+    }
+    else
+        clearSelectedNode(treeID, objID);
+}
+function backToSelectedNode(treeID)
 {
-    var selectedNode = $get("selectedNode").value;
-    $("#centerTeamTree").jstree("deselect_node", $(centerTeamTree).jstree("get_selected", true)[0]).trigger("deselect_node.jstree");
-    $("#centerTeamTree").jstree("select_node", $.jstree.reference(centerTeamTree)._model.data[selectedNode]).trigger("select_node.jstree");
+    if (treeID.indexOf("other") < 0) { ///if select is on other tree - no action needed
+        var selectedNode = $get("selectedNode").value;
+        var selector = $("#" + treeID)[0];
+        $("#" + treeID).jstree("deselect_node", $(selector).jstree("get_selected", true)[0]).trigger("deselect_node.jstree");
+        $("#" + treeID).jstree("select_node", $.jstree.reference(selector)._model.data[selectedNode]).trigger("select_node.jstree");
+    }
 }
    
-
-function clearSelectedNode() {
+function clearSelectedNode(treeID, objID) {
     $get("nodeDataChanged").value = "0";
     $get("selectedNode").value = "";
     $get("ExtraFields").style.display = "none";
-    $get("fldSekerID").value = "0";
-    $get("fldTeamTorType").value = "";
+    if (treeID == 'centerTeamTree')
+        clearTeamNode();
+   
 }
-
 
 
 function getJsonTreeData(data, treeLevel, RootLevelType, InLevelType) {

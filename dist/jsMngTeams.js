@@ -184,3 +184,7 @@ function getTeamTreesAfter() {
         $('#OtherTeams')[0].style.display = "none";
     }
 }
+function clearTeamNode() {
+    $get("fldSekerID").value = "0";
+    $get("fldTeamTorType").value = "";
+}

@@ -3150,7 +3150,7 @@
 		    var dom, t1, t2, th;
 		    var selectedNode = $get("selectedNode").value;
 		    if (typeof(obj) == "object" && obj.id != selectedNode && selectedNode!= '')
-		        checkClearSelectionNode();
+		        checkClearSelectionNode(this.element[0].id, obj.id); //this.element[0].id == tree.ID
 			if($.isArray(obj)) {
 				obj = obj.slice();
 				for(t1 = 0, t2 = obj.length; t1 < t2; t1++) {
