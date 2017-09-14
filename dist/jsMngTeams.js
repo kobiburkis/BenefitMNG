@@ -171,19 +171,25 @@ function getTeamTreesAfter() {
     savePreValues();
     var centerID = $get("fldSrchCenterID").value;
     var sourceEnv = $get("fldSourceEnv").value;
-    if (centerID != "" && sourceEnv != "") {
+    if (centerID != "0" && centerID != "" && sourceEnv != "") {
         var teamsData = getTeamsData(centerID, sourceEnv);
         if (teamsData != "שגיאה") {
             show_tree("centerTeamTree", teamsData);
+            getOtherTrees();
         }
-        getOtherTrees();
+        else
+            clearTeamTrees();
     }
-    else {
-        $("centerTeamTree").jstree("destroy");
-        $("otherTeamTree").jstree("destroy");
-        $('#OtherTeams')[0].style.display = "none";
-    }
+    else
+        clearTeamTrees();
+    
 }
+function clearTeamTrees() {
+    $("#centerTeamTree").jstree("destroy");
+    $("#otherTeamTree").jstree("destroy");
+    $('#OtherTeams')[0].style.display = "none";
+}
+
 function clearTeamNode() {
     $get("fldSekerID").value = "0";
     $get("fldTeamTorType").value = "";

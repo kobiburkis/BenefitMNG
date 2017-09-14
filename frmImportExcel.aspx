@@ -10,7 +10,7 @@
   <bnft:HeaderImports runat="server" />
   <script type="text/javascript" src="dist/jsImportExcel.js"></script>
 </head>
-<body>
+<body onload="onLoad();">
     <bnft:Header runat="server" />
     <form id="form1" runat="server">
     <asp:ScriptManager ID="ScriptManager1" runat="server"></asp:ScriptManager>
@@ -25,17 +25,34 @@
         <div runat="server" id="excelParams">
             <table>
                 <tr>
-                    <td><asp:Label CssClass="lbl" runat="server" ID="lblImportExcelTypeID" Text="סוג קליטה" /></td>
-                    <td><asp:DropDownList id="fldImportExcelTypeID" Width="175px" runat="server" OnChange ="displayNeededFields();"></asp:DropDownList></td>
+                    <td><asp:Label CssClass="lbl" runat="server" ID="lblSourceEnv" Text="סביבת מקור:" /></td>
+                    <td><asp:DropDownList id="fldSourceEnv" CssClass="fldTable" runat="server"></asp:DropDownList></td>
+                </tr>
+                <tr>
+                    <td><asp:Label CssClass="lbl" runat="server" ID="lblImportExcelTypeID" Text="סוג קליטה:" /></td>
+                    <td><asp:DropDownList id="fldImportExcelTypeID" Width="175px" CssClass="fldTable" runat="server" OnChange ="displayNeededFields();"></asp:DropDownList></td>
                 </tr>
                 <tr id="trCenterType" style="display:none">
-                     <td><asp:Label CssClass="lbl" runat="server" ID="lblCenterTypeID" Text="סוג מוקד" /></td>
-                    <td><asp:DropDownList id="fldCenterTypeID" Width="175px" runat="server"></asp:DropDownList></td>
+                     <td><asp:Label CssClass="lbl" runat="server" ID="lblCenterTypeID" Text="סוג מוקד:" /></td>
+                    <td><asp:DropDownList id="fldCenterTypeID" Width="175px" CssClass="fldTable" runat="server"></asp:DropDownList></td>
                 </tr>
+                <tr>
+                   <td><asp:Label CssClass="lbl" runat="server" ID="lblFileName" Text="קובץ לקליטה:"/></td>
+                   <td><asp:DropDownList id="fldFileNamesList" CssClass="fldTable" runat="server" Width="250px" OnChange ="setChosenFile();"></asp:DropDownList></td>                                            
+                 </tr>
             </table>
-           
+            <asp:HiddenField runat="server" ID="filesFolder" />
+            <asp:HiddenField runat="server" ID="fileChosen" Value="" />
                     
        </div>
+     <div id="ctlDialog" title="הודעת מערכת" style="display:none">
+      <table>
+          <tr>
+         <%--     <td><span id="dialogIcon" class="ui-icon"></span></td>--%>
+              <td><asp:Label runat="server" CssClass="dialogText" ID="dialogText"></asp:Label> </td>
+          </tr>
+     </table>
+</div>
     </div>
     </form>
 </body>

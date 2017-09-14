@@ -27,7 +27,7 @@
                 <asp:Label CssClass="lbl" runat="server" ID="lblSourceEnv" Text="סביבת מקור:" />
              </td>
              <td>
-                <asp:DropDownList id="fldSourceEnv" CssClass="fldTable" runat="server"  OnChange ="getTeamTrees();"></asp:DropDownList>              
+                <asp:DropDownList id="fldSourceEnv" CssClass="fldTable" runat="server"  OnChange ="reloadCenterCombo();getTeamTrees();"></asp:DropDownList>              
             </td>
              <td>
                 <asp:Label CssClass="lbl" runat="server" ID="lblSrchCenterID" Text="מוקד:" />
@@ -53,11 +53,9 @@
         </tr>
            
         </table>
+      <div runat="server" class="myTreeLocation" id="centerTeamTree"></div>
       <table>
         <tr>
-            <td style="width:400px;">
-               <div runat="server" class="myTreeLocation" id="centerTeamTree"></div>
-            </td>
             <td style="vertical-align: central; padding-right: 50px; position: absolute">
                 <table>
                     <tr>

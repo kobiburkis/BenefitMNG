@@ -377,3 +377,65 @@ function getNewNodeText(type) {
             return "חדש";
     }
 }
+
+function reloadCenterCombo() {
+    if ($get("fldSourceEnv").value != '') {
+        var srch = 'fldSourceEnv=';
+        srch = srch + $get("fldSourceEnv").value;
+        reloadCombo("frmMngTeams", "fldSrchCenterID", srch);
+    }
+}
+function reloadCombo(sFrm, sCombo, sFilter, sPrefix, sToCombo) {
+    try {
+        var result = getXMLAJAX('frmCombo.aspx', 'sFrm=' + sFrm + '&combo=' + sCombo + '&' + sFilter);
+        var xml = (result.responseXML == null) ? loadXml(result.responseText) : result.responseXML;
+        var fromCmb = xml.querySelector('select');
+        var id;
+        if (!sToCombo)
+            id = fromCmb.getAttribute('id');
+        else
+            id = sToCombo;
+        if (!sPrefix)
+            sPrefix = '';
+        var toCmb = $get(sPrefix + id);
+        if (toCmb) {
+            var comboValue = toCmb.value;
+            toCmb.innerHTML = fromCmb.innerHTML;
+            toCmb.value = comboValue;
+        }
+    } catch (e) {
+        
+    }
+}
+
+
+function getXMLAJAX(sUrl, sSrch, bAsync, returnJson) {
+    if (arguments.length < 3)
+        bAsync = false;
+    document.body.style.cursor = 'wait';
+        return $.ajax({
+            type: "POST",
+            url: sUrl,
+            data: sSrch,
+            async: bAsync,
+            mode: 'queue',
+            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+            dataType: 'xml',
+            success: function (msg, textStatus, jqXHR) {
+                if (bAsync && sUrl.toString().indexOf('frmGrid.aspx') >= 0) {
+                    var srch = sSrch.toString().split('&');
+                    var sFrm = srch[0].split('=')[1];
+                    var sFilter = sSrch.substr(sSrch.indexOf("]") + 2, sSrch.length);
+                    var sGrid = srch[1].split('=')[1];
+                    fAfterJQGRD(sFrm, sGrid, sFilter, jqXHR);
+                }
+                document.body.style.cursor = '';
+                //top.status="Loading ajax data success!";
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                document.body.style.cursor = '';
+                bnft_logErr('ajax', 'ajaxError from URL:' + sUrl, "content:" + XMLHttpRequest.responseText);
+                top.status = 'ajaxError from URL:' + sUrl;
+            }
+        });
+}

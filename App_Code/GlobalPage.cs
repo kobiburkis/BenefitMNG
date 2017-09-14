@@ -12,6 +12,16 @@ public partial class GlobalPage : System.Web.UI.Page
     {
         connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["MySQLServer"].ConnectionString;
     }
+    bool isAJAXFrm(string frmName)
+    {
+        switch (frmName)
+        {
+            case "frmCombo":
+            case "frmGrid":
+                return true;
+        }
+        return false;
+    }
     public void LoadCenters(DropDownList ctl)
     {
         using (SqlConnection con = new SqlConnection(connectionString))
@@ -19,8 +29,27 @@ public partial class GlobalPage : System.Web.UI.Page
             try
             {
                 DataTable centers = new DataTable();
-                SqlDataAdapter adapter = new SqlDataAdapter("SELECT fldCenterID, fldCenterDesc FROM BenefitInput.dbo.tblCenter", con);
-                adapter.Fill(centers);
+                using (var cmd = new SqlCommand("BenefitMng.dbo.usp_Mng_getCenters", con))
+                using (var da = new SqlDataAdapter(cmd))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    string sourceEnv = "1";
+                    SqlParameter p;
+                    if (!string.IsNullOrEmpty(Request.Form["sFrm"]))
+                    {
+                        if (!string.IsNullOrEmpty(Request.Form["fldSourceEnv"]))
+                            sourceEnv = Request.Form["fldSourceEnv"];
+                    }
+                    else
+                    {
+                        DropDownList fldSourceEnv = (DropDownList)Form.FindControl("fldSourceEnv");
+                        if (fldSourceEnv != null && fldSourceEnv.SelectedValue != string.Empty)
+                            sourceEnv = fldSourceEnv.SelectedValue;
+                    }
+                    p = new SqlParameter("@fldSourceEnv", sourceEnv);
+                    cmd.Parameters.Add(p);
+                    da.Fill(centers);
+                }
 
                 ctl.DataSource = centers;
                 ctl.DataTextField = "fldCenterDesc";

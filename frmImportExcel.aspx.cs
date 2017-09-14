@@ -9,7 +9,9 @@ public partial class frmImportExcel : GlobalPage
 {
     protected void Page_Load(object sender, EventArgs e)
     {
+        LoadEnvironments(fldSourceEnv);
         loadExcelTypes(fldImportExcelTypeID);
         loadCenterTypes(fldCenterTypeID);
+        filesFolder.Value = "\\\\SERVER2012\\ImportExcel\\";
     }
 }
