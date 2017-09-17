@@ -53,9 +53,11 @@
         </tr>
            
         </table>
-      <div runat="server" class="myTreeLocation" id="centerTeamTree"></div>
       <table>
         <tr>
+            <td style="width:400px;">
+               <div runat="server" class="myTreeLocation" id="centerTeamTree"></div>
+            </td>
             <td style="vertical-align: central; padding-right: 50px; position: absolute">
                 <table>
                     <tr>

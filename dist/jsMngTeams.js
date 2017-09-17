@@ -1,6 +1,8 @@
 ﻿function onLoad() {
     //$('fldSourceEnv').data('pre', $('fldSourceEnv').val());
     //$('fldSrchCenterID').data('pre', $('fldSrchCenterID').val());
+    var el = $get("fldSekerID");
+    $addHandlers(el, integer_hand, el);
 }
 function getTeamsData(centerID, sourceEnv, other) {
     try {

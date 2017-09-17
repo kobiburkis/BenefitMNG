@@ -24,12 +24,46 @@ public class srvHarel : System.Web.Services.WebService
         //Uncomment the following line if using designed components 
         //InitializeComponent(); 
     }
+    public DataSet execSP(DataSet ds, string tblDTName, string spName, params SqlParameter[] spParams)
+    {
+        try
+        {
+            DataTable table = new DataTable();
+            table.TableName = tblDTName;
+            using (var con = new SqlConnection(ConfigurationManager.ConnectionStrings["MySQLServer"].ConnectionString))
+            using (var cmd = new SqlCommand(spName, con))
+            using (var da = new SqlDataAdapter(cmd))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                foreach (SqlParameter p in spParams)
+                {
+                    cmd.Parameters.Add(p);
+                }
+                da.Fill(table);
+                ds.Tables.Add(table);
+            }
+            return ds;
+        }
+        catch (Exception ex)
+        {
+            DataTable table = new DataTable();
+            table.TableName = "err";
+            table.Columns.Add("ErrorNumber");
+            table.Columns.Add("ErrorMsg");
+            table.Rows.Add(ex.HResult, ex.Message);
+            ds.Tables.Add(table);
+            return ds;
+        }
 
+    }
+
+    #region DepartmentsTeams
     [WebMethod(EnableSession = true)]
-    public string departmentsData(string fldCenterID,string fldSourceEnv,int fldOtherTeams)
+    public string departmentsData(string fldCenterID, string fldSourceEnv, int fldOtherTeams)
     {
         DataSet ds = new DataSet();
-        try {
+        try
+        {
             ds = execSP(ds, "data", "BenefitMng.dbo.usp_Mng_getDepartmentDetails",
                 new SqlParameter("@fldCenterID", fldCenterID),
                 new SqlParameter("@fldSourceEnv", fldSourceEnv),
@@ -44,7 +78,7 @@ public class srvHarel : System.Web.Services.WebService
         }
     }
     [WebMethod(EnableSession = true)]
-    public string updateDeprTeamTree(int fldCenterID , int fldTargetEnv , string fldMngNote, string doc)
+    public string updateDeprTeamTree(int fldCenterID, int fldTargetEnv, string fldMngNote, string doc)
     {
         DataSet ds = new DataSet();
         DataTable dt = (DataTable)JsonConvert.DeserializeObject(doc, (typeof(DataTable)));
@@ -67,35 +101,27 @@ public class srvHarel : System.Web.Services.WebService
         }
     }
 
-    public DataSet execSP(DataSet ds, string tblDTName, string spName, params SqlParameter[] spParams)
+    #endregion
+    #region ProblemPreserve
+    [WebMethod(EnableSession = true)]
+    public string getProblemPreserveData(string fldCenterID, string fldSourceEnv, int fldOtherValues)
     {
+        DataSet ds = new DataSet();
         try
         {
-            DataTable table = new DataTable();
-            table.TableName = tblDTName;
-            using (var con = new SqlConnection(ConfigurationManager.ConnectionStrings["MySQLServer"].ConnectionString))
-            using (var cmd = new SqlCommand(spName, con))
-            using (var da = new SqlDataAdapter(cmd))
-            {
-                cmd.CommandType = CommandType.StoredProcedure;
-                foreach (SqlParameter p in spParams)
-                {
-                    cmd.Parameters.Add(p);
-                }
-                da.Fill(table);
-                ds.Tables.Add(table);
-            }
-            return ds;
+            ds = execSP(ds, "data", "BenefitMng.dbo.usp_Mng_getProblemPreserveDetails",
+                new SqlParameter("@fldCenterID", fldCenterID),
+                new SqlParameter("@fldSourceEnv", fldSourceEnv),
+                new SqlParameter("@fldOtherValues", fldOtherValues)
+                );
+            return Newtonsoft.Json.JsonConvert.SerializeObject(ds, Newtonsoft.Json.Formatting.Indented);
         }
-        catch (Exception ex) {
-            DataTable table = new DataTable();
-            table.TableName = "err";
-            table.Columns.Add("ErrorNumber");
-            table.Columns.Add("ErrorMsg");
-            table.Rows.Add(ex.HResult, ex.Message);
-            ds.Tables.Add(table);
-            return ds;
+        catch (Exception ex)
+        {
+            //log(ex, null);
+            return Newtonsoft.Json.JsonConvert.SerializeObject(ds, Newtonsoft.Json.Formatting.Indented);
         }
-
     }
+    #endregion
+
 }

@@ -1,4 +1,6 @@
-﻿function btnConfiguration(btnType, btnYFunc, btnNFunc) {
+﻿var integer_hand = {keypress: bnft_pressNum};
+
+function btnConfiguration(btnType, btnYFunc, btnNFunc) {
     if (btnType == 1) {
         var btnConfig =
             {
@@ -197,7 +199,20 @@ function setJsonDataToFields(obj) {
         }
     }
 }
-
+function bnft_pressNum() {
+    try {
+        var key = event.keyCode;
+        var ok = bnft_isNum(key) || (key == bnft_code(',')) || ((key == bnft_code('.')) && event.srcElement.value.indexOf('.') == -1);
+        event.returnValue = ok;
+        if (!ok)
+            event.preventDefault();
+        return ok;
+    } catch (e) {
+        return false;
+    }
+}
+function bnft_isNum(key) { return (key >= bnft_code('0') && key <= bnft_code('9')); }
+function bnft_code(ch) { return ch.charCodeAt(0); }
 function bnft_fld(el) {
     return el && el.name;
 }
@@ -377,7 +392,6 @@ function getNewNodeText(type) {
             return "חדש";
     }
 }
-
 function reloadCenterCombo() {
     if ($get("fldSourceEnv").value != '') {
         var srch = 'fldSourceEnv=';
@@ -407,8 +421,6 @@ function reloadCombo(sFrm, sCombo, sFilter, sPrefix, sToCombo) {
         
     }
 }
-
-
 function getXMLAJAX(sUrl, sSrch, bAsync, returnJson) {
     if (arguments.length < 3)
         bAsync = false;
@@ -422,19 +434,19 @@ function getXMLAJAX(sUrl, sSrch, bAsync, returnJson) {
             contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
             dataType: 'xml',
             success: function (msg, textStatus, jqXHR) {
-                if (bAsync && sUrl.toString().indexOf('frmGrid.aspx') >= 0) {
-                    var srch = sSrch.toString().split('&');
-                    var sFrm = srch[0].split('=')[1];
-                    var sFilter = sSrch.substr(sSrch.indexOf("]") + 2, sSrch.length);
-                    var sGrid = srch[1].split('=')[1];
-                    fAfterJQGRD(sFrm, sGrid, sFilter, jqXHR);
-                }
+                //if (bAsync && sUrl.toString().indexOf('frmGrid.aspx') >= 0) {
+                //    var srch = sSrch.toString().split('&');
+                //    var sFrm = srch[0].split('=')[1];
+                //    var sFilter = sSrch.substr(sSrch.indexOf("]") + 2, sSrch.length);
+                //    var sGrid = srch[1].split('=')[1];
+                //    fAfterJQGRD(sFrm, sGrid, sFilter, jqXHR);
+                //}
                 document.body.style.cursor = '';
                 //top.status="Loading ajax data success!";
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
                 document.body.style.cursor = '';
-                bnft_logErr('ajax', 'ajaxError from URL:' + sUrl, "content:" + XMLHttpRequest.responseText);
+              //  bnft_logErr('ajax', 'ajaxError from URL:' + sUrl, "content:" + XMLHttpRequest.responseText);
                 top.status = 'ajaxError from URL:' + sUrl;
             }
         });

@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="frmImportExcel.aspx.cs" Inherits="frmImportExcel" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="frmImportExcel.aspx.cs" EnableEventValidation="false" Inherits="frmImportExcel" %>
 <%@ Register TagPrefix="bnft" TagName="Header" Src="Header.ascx" %>
 <%@ Register TagPrefix="bnft" TagName="HeaderImports" Src="HeaderImports.ascx" %>
 <!DOCTYPE html>
@@ -43,7 +43,10 @@
             </table>
             <asp:HiddenField runat="server" ID="filesFolder" />
             <asp:HiddenField runat="server" ID="fileChosen" Value="" />
-                    
+                 
+    <asp:FileUpload ID="Upload" runat="server" />
+    <asp:Button ID="Button1" runat="server" Text="Upload"  OnClick="Button1_Click"/>
+
        </div>
      <div id="ctlDialog" title="הודעת מערכת" style="display:none">
       <table>
