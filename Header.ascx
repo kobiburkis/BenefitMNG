@@ -11,7 +11,7 @@
                         <a href="#">טבלאות מערכת</a>
                         <ul class="submenu">
                             <li><a href="frmMngTeams.aspx">ניהול צוותים</a></li>
-                            <li><a href="#">עידכון מקור והליך</a></li>
+                            <li><a href="frmMngProblemPreserve.aspx">עידכון מקור והליך</a></li>
                             <li><a href="#">עידכון טבלאות</a></li>
                         </ul>
                       </li>

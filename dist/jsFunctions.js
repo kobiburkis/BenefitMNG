@@ -1,5 +1,13 @@
 ﻿var integer_hand = {keypress: bnft_pressNum};
-
+function addIntegerHandler(fieldsList)
+{
+    var list = fieldsList.split(',');
+    for (var i = 0; i < list.length; i++) {
+        var el = $get(list[i]);
+        if (el)
+            $addHandlers(el, integer_hand, el);
+    }
+}
 function btnConfiguration(btnType, btnYFunc, btnNFunc) {
     if (btnType == 1) {
         var btnConfig =
@@ -49,6 +57,11 @@ function openMsg(text, btnType, btnYFunc, btnNFunc) {
 function savePreValues() {
     $("#fldSrchCenterID").data('pre', $("#fldSrchCenterID").val());
     $("#fldSourceEnv").data('pre', $("#fldSourceEnv").val());
+    if ($('#rblCenterTree')[0]) {
+        var checked = $('input[type=radio]:checked', '#rblCenterTree')[0].id;
+        $("#rblCenterTree").data('pre', checked);
+    }
+
 
 }
 function setPreValues() {
@@ -56,9 +69,56 @@ function setPreValues() {
     $get("fldSrchCenterID").value = before_change;
     before_change = $("#fldSourceEnv").data('pre');
     $get("fldSourceEnv").value = before_change;
+    if ($('#rblCenterTree')[0]) {
+        before_change = $("#rblCenterTree").data('pre');
+        $("#" + before_change).prop("checked", true)
+    }
 
 }
 
+function setRemovedNodes(inst, obj, loop) {
+    $get("treeDataChanged").value = "1";
+    if (loop == 0)
+        setRemovedNode(inst, obj);
+    else { //loop through tree foor objID instances
+        var idPrefix = obj.id.substring(0, obj.id.indexOf('*'));
+        var parentsArray = inst._model.data['#'].children;
+        for (var i = 0; i < parentsArray.length; i++) {
+            var parentExt = '*' + parentsArray[i].substr(parentsArray[i].indexOf('_') + 1);
+            var searchID = idPrefix + parentExt;
+            var objSearch = inst.get_node(searchID);
+            if (objSearch)
+                setRemovedNode(inst, objSearch);
+        }
+        
+    }
+}
+function setRemovedNode(inst, obj) {
+    var objData = JSON.parse(obj.data);
+    if (typeof (objData.fldRemove) != "undefined") {//Delete Remove Attribute
+        delete objData.fldRemove;
+        obj.data.pop();
+        obj.data.push(JSON.stringify(objData));
+        inst._model.data[obj.id].a_attr['class'] = "";
+        inst._model.data[obj.id].li_attr['class'] = "";
+        if ($get(obj.id))
+            $get(obj.id).classList.remove("nodeDeleted");
+        if ($get(obj.id + "_anchor"))
+            $get(obj.id + "_anchor").classList.remove("nodeDeleted");
+        
+    }
+    else {
+        objData.fldRemove = "Y";
+        obj.data.pop();
+        obj.data.push(JSON.stringify(objData));
+        inst._model.data[obj.id].a_attr['class'] = "nodeDeleted";
+        inst._model.data[obj.id].li_attr['class'] = "nodeDeleted";
+        if ($get(obj.id))
+            $get(obj.id).classList.add("nodeDeleted");
+        if ($get(obj.id + "_anchor"))
+            $get(obj.id + "_anchor").classList.add("nodeDeleted");
+    }
+}
 function getChangeNodeMsg(treeID, objID) {
     if (treeID == 'centerTeamTree')
         return 'בוצע שינוי בצוות - האם לצאת ללא שמירה ?';
@@ -91,10 +151,9 @@ function clearSelectedNode(treeID, objID) {
     $get("ExtraFields").style.display = "none";
     if (treeID == 'centerTeamTree')
         clearTeamNode();
-   
+    if (treeID == 'centerProblemPreserveTree')
+        clearPreserveProblemNode();
 }
-
-
 function getJsonTreeData(data, treeLevel, RootLevelType, InLevelType) {
     if (treeLevel == 1) {
         var json_data = '[{ "id" : "' + data[0].id + '" ,"text" : ' + JSON.stringify(data[0].nodeText) + ', "type": "' + RootLevelType + '","data":[' + JSON.stringify(data[0].data) + '], "children"    : [';
@@ -128,7 +187,48 @@ function getJsonTreeData(data, treeLevel, RootLevelType, InLevelType) {
     }
     return json_data;
 }
+function show_tree(treeID, json_data, types, search, dnd, plugins) {
+    try {
+        treeID = "#" + treeID;
+        $(treeID).jstree("destroy");
+        if (treeID.indexOf("other") > -1) {
+            $(treeID).jstree({
+                "core": {
+                    "check_callback": function (op, node, par, pos, more) {
+                        return true;
+                    },
+                    "data": json_data
+                },
+                "types": types,
+                'search': search,
+                'dnd': dnd,
+                "plugins": plugins
+            });
 
+            $('#fldSearchValues').keyup(function () {
+                $(treeID).jstree(true).show_all();
+                $(treeID).jstree('search', $(this).val());
+            });
+        }
+        else {
+            $(treeID).jstree({
+                "core": {
+                    "check_callback": function (op, node, par, pos, more) {
+                        return true;
+                    },
+                    "data": json_data
+                },
+                "types": types,
+                "plugins": plugins,
+                'dnd': dnd
+            });
+        }
+    }
+    catch (e) {
+        openMsg("שגיאה בטעינת נתונים", 1);
+        top.status = "Error In show_tree:" + e.message.toString();
+    }
+}
 function checkMngMustFields()
 {
     if ($get("fldMngNote").value == '') {
@@ -177,7 +277,6 @@ function saveNodeData(treeID) {
 function dataChanged(change) {
     $get("nodeDataChanged").value = change;
 }
-
 function getJsonDataFromFields(fieldSetID) {
     var data = bnft_getJSON($get(fieldSetID));
     return data;
@@ -185,17 +284,27 @@ function getJsonDataFromFields(fieldSetID) {
 function setJsonDataToFields(obj) {
     //Example: var jsonResult = '{"fldSekerId": "retr","fldTeamTorType": "1"}';
     var jsonData = obj.data;
-    $get("selectedNode").value = obj.id;
-    if (obj.type == "team")
-        $get("ExtraFields").style.display = "";
     var fields = JSON.parse(jsonData);
     if (fields) {
-        $get("lblExtraDetailsSpec").innerText = obj.text;
+       $get("selectedNode").value = obj.id;
+       $get("ExtraFields").style.display = "";
+       if (obj.type != "team")
+           dispEditFields(obj.type);  //Every Frm Must have this function
+       $get("lblExtraDetailsSpec").innerText = obj.text;
         var keys = Object.keys(fields);
         for (var i = 0, emp; i < keys.length; i++) {
             var field = $get(keys[i]);
             if (field)
-                field.value = fields[keys[i]];
+                if (field.type == "checkbox") {
+                    if (fields[keys[i]] == "1")
+                        field.checked = true;
+                }
+                else {
+                    if (fields[keys[i]] == "0")
+                        field.value = "";
+                    else
+                        field.value = fields[keys[i]];
+                }
         }
     }
 }
@@ -357,7 +466,17 @@ function checkContextMenuAvailabilty(data, action) {
     var inst = $.jstree.reference(data.reference),
 	obj = inst.get_node(data.reference);
     var objType = obj.type;
-    if ((objType == "team") && (action == "create" || action == "create_root" || action == "remove_center"))
+    var treeType = 'Center';
+    if ($('#rblCenterTree')[0]) {
+        var checked = $('input[type=radio]:checked', '#rblCenterTree').val();
+        if (checked == "MainTree")
+            treeType = 'Main';
+    }
+    if (treeType == 'Main' && action == "remove_center")
+        return true;
+    if (("team" == objType) && (action == "create" || action == "create_root" || action == "remove_center"))
+        return true;
+    if (("preserve" == objType) && (action == "create" || action == "create_root"))
         return true;
     if ((objType == "depr") && (action == "editData"))
         return true;
@@ -371,7 +490,11 @@ function getContextMenuLabel(data, action) {
         return "צור צוות חדש";
     if (("depr,team".indexOf(objType) > -1) && (action == "create_root"))
         return "צור מחלקה חדשה";
-    if (("depr,team".indexOf(objType) > -1) && (action == "remove_center"))
+    if (("problem,preserve".indexOf(objType) > -1) && (action == "create"))
+        return "צור הליך חדש";
+    if (("problem,preserve".indexOf(objType) > -1) && (action == "create_root"))
+        return "צור מקור חדש";
+    if (("depr,team,problem,preserve".indexOf(objType) > -1) && (action == "remove_center"))
     {
         if (obj.data && obj.data.toString().indexOf("fldRemove") > -1)
             return "החזר קישור למוקד";
@@ -387,6 +510,12 @@ function getNewNodeText(type) {
             break;
         case 'depr':
             return "מחלקה חדשה";
+            break;
+        case 'problem':
+            return "מקור חדש";
+            break;
+        case 'preserve':
+            return "הליך חדש";
             break;
         default:
             return "חדש";

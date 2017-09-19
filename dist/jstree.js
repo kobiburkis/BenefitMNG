@@ -70,7 +70,12 @@
 		 * stores all loaded jstree plugins (used internally)
 		 * @name $.jstree.plugins
 		 */
-		plugins : {},
+		plugins: {},
+	    /**
+          * stores all parents nodes types jstree  (used internally)
+		 * @name $.jstree.parentsTypes
+        */
+        parentsTypes: ["depr","problem"], 
 		path : src && src.indexOf('/') !== -1 ? src.replace(/\/[^\/]+$/,'') : '',
 		idregex : /[\\:&!^|()\[\]<>@*'+~#";.,=\- \/${}%?`]/g,
 		root : '#'
@@ -3725,7 +3730,8 @@
 		 * @trigger model.jstree, create_node.jstree
 		 */
 		create_node : function (par, node, pos, callback, is_loaded) {
-			if(par === null || node.type ==="depr") { par = $.jstree.root; }
+		    if (par === null || $.jstree.parentsTypes.toString().indexOf(node.type)>-1) { par = $.jstree.root;
+		    }
 			par = this.get_node(par);
 			if(!par) { return false; }
 			pos = pos === undefined ? "last" : pos;
@@ -4009,7 +4015,7 @@
 				}
 			}
 			obj = obj && obj.id ? obj : this.get_node(obj);
-
+        
 			if(!obj || obj.id === $.jstree.root) { return false; }
 
 			old_par = (obj.parent || $.jstree.root).toString();
@@ -4020,7 +4026,7 @@
 			if(old_ins && old_ins._id) {
 				obj = old_ins._model.data[obj.id];
 			}
-
+		
 			if(is_multi) {
 			    if ((tmp = this.copy_node(obj, par, pos, callback, is_loaded, false, origin))) {
 			       this.setChangedNode(tmp);
@@ -4101,13 +4107,20 @@
 				new_par.children = dpc;
 				new_par.children_d.push(obj.id);
 				new_par.children_d = new_par.children_d.concat(obj.children_d);
-
+                /*
+                if ((new_par.id != "#") && (obj.id.indexOf('*') > 0)) {
+			    var parentExt = '*' +new_par.id.substr(new_par.id.indexOf('_') +1);
+			    var newNodeID = obj.id.substr(0, obj.id.indexOf('*')) +parentExt;
+			    obj.id = newNodeID;
+				}*/
 				// update object
 				obj.parent = new_par.id;
 				tmp = new_par.parents.concat();
 				tmp.unshift(new_par.id);
 				p = obj.parents.length;
 				obj.parents = tmp;
+
+
 
 				// update object children
 				tmp = tmp.concat();
@@ -4223,7 +4236,22 @@
 			}
 			node = old_ins ? old_ins.get_json(obj, { no_id : false, no_data : false, no_state : true }) : obj;
 			if(!node) { return false; }
-			if(node.id === true) { delete node.id; }
+			if (node.id === true) { delete node.id; }
+			if (new_par.id != "#") {
+			    var parentExt = '*' + new_par.id.substr(new_par.id.indexOf('_') + 1);
+			    if (node.id.indexOf('*') > 0) { //Copy From Same Tree
+			        var newNodeID = node.id.substr(0, node.id.indexOf('*')) + parentExt;
+			        node.id = newNodeID;
+			        node.a_attr.id = newNodeID + '_anchor';
+                    node.li_attr.id = newNodeID;
+			    }
+			    if (old_par == "#" && ("team,depr".indexOf(node.type) <0)) { //Copy From Other Tree
+			        var newNodeID = node.id +parentExt;
+			        node.id = newNodeID;
+			        node.a_attr.id = newNodeID + '_anchor';
+			        node.li_attr.id = newNodeID;
+			    }
+			}
 			node = this._parse_model_from_json(node, new_par.id, new_par.parents.concat());
 			if(!node) { return false; }
 			tmp = this.get_node(node);
@@ -5926,7 +5954,7 @@
 		            "action": function (data) {
 		                var inst = $.jstree.reference(data.reference),
 							obj = inst.get_node(data.reference);
-		                inst.create_node(obj, { type: "depr" }, "last", function (new_node) {
+		                inst.create_node(obj, { type: obj.type }, "last", function (new_node) {
 		                    try {
 		                        inst.edit(new_node);
 		                    } catch (ex) {
@@ -5947,7 +5975,8 @@
 					"action"			: function (data) {
 						var inst = $.jstree.reference(data.reference),
 							obj = inst.get_node(data.reference);
-						inst.create_node(obj, {type:"team"}, "last", function (new_node) {
+						var nodeType = inst.settings.types[obj.type].valid_children[0];
+						inst.create_node(obj, {type:nodeType}, "last", function (new_node) {
 						    try {
 								inst.edit(new_node);
 							} catch (ex) {
@@ -6002,28 +6031,10 @@
 				    "action"			: function (data) {
 				        var inst = $.jstree.reference(data.reference),
 							obj = inst.get_node(data.reference);
-				        var objData = obj.data;
-				        if (objData.toString().indexOf("fldRemove") > -1) {
-				            obj.data.pop();
-				            obj.data.push('{}');
-				            inst._model.data[obj.id].a_attr['class'] = "";
-				            inst._model.data[obj.id].li_attr['class'] = "";
-				            if ($get(obj.id))
-				                $get(obj.id).classList.remove("nodeDeleted");
-				            if ($get(obj.id + "_anchor"))
-				                $get(obj.id + "_anchor").classList.remove("nodeDeleted");
-				        }
-				        else {
-				            objData = '{"fldRemove" : "Y"}';
-				            obj.data.pop();
-				            obj.data.push(objData);
-				            inst._model.data[obj.id].a_attr['class'] = "nodeDeleted";
-				            inst._model.data[obj.id].li_attr['class'] = "nodeDeleted";
-				            if ($get(obj.id))
-				                $get(obj.id).classList.add("nodeDeleted");
-				            if ($get(obj.id + "_anchor"))
-				                $get(obj.id + "_anchor").classList.add("nodeDeleted");
-				        }
+				        var loop = 0;
+				        if (($.jstree.parentsTypes.toString().indexOf(obj.type) < 0) && obj.type != 'team')
+                            loop = 1;
+				       setRemovedNodes(inst, obj,loop);
 				    }
 				},
 				"remove" : {

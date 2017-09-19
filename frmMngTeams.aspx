@@ -107,8 +107,8 @@
          <asp:ListItem Value="TeamTree" Text="צוותים נוספים" />
          <asp:ListItem Value="DeprTree" Text="מחלקות נוספות" />
        </asp:RadioButtonList>
-        <asp:Label CssClass="lblInner" runat="server" ID="lblSearchTeams" Text="חיפוש : " />
-        <asp:TextBox runat="server" ID="fldSearchTeams" TextMode="Search"></asp:TextBox>
+     <asp:Label CssClass="lblInner" runat="server" ID="lblSearchValues" Text="חיפוש : " />
+        <asp:TextBox runat="server" ID="fldSearchValues" TextMode="Search"></asp:TextBox>
    </div>
     <div runat="server" class="myTreeLocation" id="otherTeamTree"></div>
     <asp:HiddenField runat="server" ID="selectedNode" />

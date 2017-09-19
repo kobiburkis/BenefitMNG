@@ -1,8 +1,16 @@
-﻿function onLoad() {
+﻿var centerTreeTypes = { "team": { "icon": "dist/themes/default/team.png", "valid_children": [] }, "depr": { "icon": "dist/themes/default/depr.png", "valid_children": ["team"] }, "#": { "valid_children": ["depr"] } };
+var otherTreeTypes = {"team":{"icon":"dist/themes/default/team.png","valid_children":[]},"depr":{"icon":"dist/themes/default/depr.png","valid_children":[]},"#":{"valid_children":[]}};
+var centerTreePlugins =["contextmenu", "unique", "dnd", "types"];
+var otherTreePlugins = ["dnd", "types", "search"];
+var centerTreeSearch;
+var otherTreeSearch ={'case_insensitive': true,'show_only_matches': true};
+var centerTreeDND = {};
+var otherTreeDND = {'always_copy': false};
+
+function onLoad() {
     //$('fldSourceEnv').data('pre', $('fldSourceEnv').val());
     //$('fldSrchCenterID').data('pre', $('fldSrchCenterID').val());
-    var el = $get("fldSekerID");
-    $addHandlers(el, integer_hand, el);
+    addIntegerHandler("fldSekerID");
 }
 function getTeamsData(centerID, sourceEnv, other) {
     try {
@@ -41,6 +49,8 @@ function getTeamsData(centerID, sourceEnv, other) {
         return "שגיאה";
     }
 }
+
+/* MOVED TO GLOBAL jsFunctions
 function show_tree(treeID, json_data) {
     try {
         treeID = "#" + treeID;
@@ -80,7 +90,7 @@ function show_tree(treeID, json_data) {
                 "plugins": ["dnd", "types", "search"]
             });
 
-            $('#fldSearchTeams').keyup(function () {
+            $('#fldSearchValues').keyup(function () {
                 $(treeID).jstree(true).show_all();
                 $(treeID).jstree('search', $(this).val());
             });
@@ -119,7 +129,7 @@ function show_tree(treeID, json_data) {
         openMsg("שגיאה בטעינת צוותים", 1);
         top.status = "Error In show_tree:" + e.message.toString();
     }
-}
+}*/
 function saveTreeData(treeID) {
     if (checkMngMustFields()) {
         var srch = '';
@@ -163,7 +173,7 @@ function getOtherTrees() {
         if (checked == "DeprTree")
             otherTreeData = getTeamsData(centerID, sourceEnv, 2);
         if (otherTreeData != "שגיאה" && otherTreeData != "") {
-            show_tree("otherTeamTree", otherTreeData);
+            show_tree("otherTeamTree", otherTreeData, otherTreeTypes, otherTreeSearch, otherTreeDND, otherTreePlugins);
         }
     }
 }
@@ -176,7 +186,7 @@ function getTeamTreesAfter() {
     if (centerID != "0" && centerID != "" && sourceEnv != "") {
         var teamsData = getTeamsData(centerID, sourceEnv);
         if (teamsData != "שגיאה") {
-            show_tree("centerTeamTree", teamsData);
+            show_tree("centerTeamTree", teamsData, centerTreeTypes, centerTreeSearch, centerTreeDND, centerTreePlugins);
             getOtherTrees();
         }
         else
