@@ -75,7 +75,7 @@
                                 <table class="content-fields" style="width:320px;border-spacing: 0 1em;" >
                                     <tr>
                                         <td colspan="2" style="border-bottom:#095da0 1px solid;width:250px;">
-                                            <asp:Label CssClass="lbl" runat="server" ID="lblExtraDetails" Text="הגדרות נוספות:" />
+                                            <asp:Label CssClass="lbl" Width="125px" runat="server" ID="lblExtraDetails" Text="הגדרות נוספות:"  />
                                             <asp:Label CssClass="lblTitle" runat="server" ID="lblExtraDetailsSpec" />
                                         </td>
                                     </tr> 
@@ -187,7 +187,7 @@
                                     <tr>
                                       <td></td>
                                       <td style="text-align: center">                                
-                                         <asp:Button ID="btnSaveNode" CssClass="btnH btnH_small" UseSubmitBehavior="false" runat="server" Text="שמור" OnClientClick="return saveNodeData('#centerProblemPreserve');" />
+                                         <asp:Button ID="btnSaveNode" CssClass="btnH btnH_small" UseSubmitBehavior="false" runat="server" Text="שמור" OnClientClick="return saveNodeData('#centerProblemPreserveTree');" />
                                       </td>
                                     </tr>
                                 </table>

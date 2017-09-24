@@ -5954,9 +5954,10 @@
 		            "action": function (data) {
 		                var inst = $.jstree.reference(data.reference),
 							obj = inst.get_node(data.reference);
-		                inst.create_node(obj, { type: obj.type }, "last", function (new_node) {
+		                inst.create_node(obj, { type: obj.type }, "first", function (new_node) {
 		                    try {
 		                        inst.edit(new_node);
+		                        setJsonDataToFields(new_node, 1);
 		                    } catch (ex) {
 		                        setTimeout(function () { inst.edit(new_node); }, 0);
 		                    }
@@ -5978,7 +5979,8 @@
 						var nodeType = inst.settings.types[obj.type].valid_children[0];
 						inst.create_node(obj, {type:nodeType}, "last", function (new_node) {
 						    try {
-								inst.edit(new_node);
+						        inst.edit(new_node);
+                                setJsonDataToFields(new_node, 1);
 							} catch (ex) {
 								setTimeout(function () { inst.edit(new_node); },0);
 							}
@@ -6036,24 +6038,24 @@
                             loop = 1;
 				       setRemovedNodes(inst, obj,loop);
 				    }
-				},
-				"remove" : {
-					"separator_before"	: false,
-					"icon"				: false,
-					"separator_after"	: false,
-					"_disabled"			: false, //(this.check("delete_node", data.reference, this.get_parent(data.reference), "")),
-					"label"				: "מחק",
-					"action"			: function (data) {
-						var inst = $.jstree.reference(data.reference),
-							obj = inst.get_node(data.reference);
-						if(inst.is_selected(obj)) {
-							inst.delete_node(inst.get_selected());
-						}
-						else {
-							inst.delete_node(obj);
-						}
-					}
 				}//,
+				//"remove" : {
+				//	"separator_before"	: false,
+				//	"icon"				: false,
+				//	"separator_after"	: false,
+				//	"_disabled"			: false, //(this.check("delete_node", data.reference, this.get_parent(data.reference), "")),
+				//	"label"				: "מחק",
+				//	"action"			: function (data) {
+				//		var inst = $.jstree.reference(data.reference),
+				//			obj = inst.get_node(data.reference);
+				//		if(inst.is_selected(obj)) {
+				//			inst.delete_node(inst.get_selected());
+				//		}
+				//		else {
+				//			inst.delete_node(obj);
+				//		}
+				//	}
+				//}//,
 				//"ccp" : {
 				//	"separator_before"	: true,
 				//	"icon"				: false,

@@ -1,4 +1,4 @@
-﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="Header.ascx.cs" Inherits="Header" %>  
+﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="Header.ascx.cs" Inherits="Header" %>
   <link rel="stylesheet" href="dist/themes/default/menu.css" />
       <table class="menuMain">
           <tr>
@@ -10,12 +10,12 @@
                        <li>
                         <a href="#">טבלאות מערכת</a>
                         <ul class="submenu">
-                            <li><a href="frmMngTeams.aspx">ניהול צוותים</a></li>
-                            <li><a href="frmMngProblemPreserve.aspx">עידכון מקור והליך</a></li>
+                            <li><a href="javascript:menuChangePage('frmMngTeams.aspx');">ניהול צוותים</a></li>
+                            <li><a href="javascript:menuChangePage('frmMngProblemPreserve.aspx');">עידכון מקור והליך</a></li>
                             <li><a href="#">עידכון טבלאות</a></li>
                         </ul>
                       </li>
-                      <li><a href="frmImportExcel.aspx">יבוא קבצים</a></li>
+                      <li><a href="javascript:menuChangePage('frmImportExcel.aspx');">יבוא קבצים</a></li>
                     </ul>
                   </td>
               </tr>

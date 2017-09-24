@@ -271,8 +271,26 @@ function saveNodeData(treeID) {
     obj[0].data.push(data);
     dataChanged(0);
     $(treeID).jstree(true).refresh_node(obj[0].id);
-    
+    if (obj[0].type == "preserve")
+        propogateNodeData(treeID, obj[0].id, data);
+        
 }
+function propogateNodeData(treeID,objId,data)
+{
+    var idPrefix = objId.substring(0, objId.indexOf('*'));
+    var parentsArray = $(treeID).jstree(true)._model.data['#'].children;
+    for (var i = 0; i < parentsArray.length; i++) {
+        var parentExt = '*' + parentsArray[i].substr(parentsArray[i].indexOf('_') + 1);
+        var searchID = idPrefix + parentExt;
+        var objSearch = $(treeID).jstree(true).get_node(searchID);
+        if (objSearch && objSearch.id != objId) {
+            objSearch.data.pop();
+            objSearch.data.push(data);
+            $(treeID).jstree(true).refresh_node(objSearch.id);
+        }
+    }
+}
+
 
 function dataChanged(change) {
     $get("nodeDataChanged").value = change;
@@ -281,16 +299,19 @@ function getJsonDataFromFields(fieldSetID) {
     var data = bnft_getJSON($get(fieldSetID));
     return data;
 }
-function setJsonDataToFields(obj) {
-    //Example: var jsonResult = '{"fldSekerId": "retr","fldTeamTorType": "1"}';
+function setJsonDataToFields(obj,fromNew) {
+    //Exa    
     var jsonData = obj.data;
     var fields = JSON.parse(jsonData);
-    if (fields) {
-       $get("selectedNode").value = obj.id;
-       $get("ExtraFields").style.display = "";
-       if (obj.type != "team")
-           dispEditFields(obj.type);  //Every Frm Must have this function
-       $get("lblExtraDetailsSpec").innerText = obj.text;
+    if (obj.type != "depr") {
+        $get("selectedNode").value = obj.id;
+        $get("ExtraFields").style.display = "";
+        $get("lblExtraDetailsSpec").innerText = obj.text;
+        if ("team,depr".indexOf(obj.type) < 0)
+            dispEditFields(obj.type);  //Every Frm Must have this function
+    }
+    
+    if (fields && Object.keys(fields).length > 0) {
         var keys = Object.keys(fields);
         for (var i = 0, emp; i < keys.length; i++) {
             var field = $get(keys[i]);
@@ -307,7 +328,8 @@ function setJsonDataToFields(obj) {
                 }
         }
     }
-}
+  }
+
 function bnft_pressNum() {
     try {
         var key = event.keyCode;
@@ -579,4 +601,14 @@ function getXMLAJAX(sUrl, sSrch, bAsync, returnJson) {
                 top.status = 'ajaxError from URL:' + sUrl;
             }
         });
+}
+function menuChangePage(url)
+{
+    if ($get("treeDataChanged") && $get("treeDataChanged").value == "1")
+        openMsg('בוצעו שינויים בדף - האם לצאת ללא שמירה ?', 2, 'menuMoveToPage("'+url+'")');
+    else 
+        menuMoveToPage(url)
+}
+function menuMoveToPage(url) {
+    window.location.replace(url);
 }
