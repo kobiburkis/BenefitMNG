@@ -51,10 +51,10 @@ function getProblemPreserveData(centerID, sourceEnv, other) {
 function saveTreeData(treeID) {
     if (checkMngMustFields()) {
         var srch = '';
-        if ($get('trSrchCenter').style.display == "none")
-            srch = getFldJSONsrch(srch, 'fldCenterID', "0", 'int');
-        else
-            srch = getFldJSONsrch(srch, 'fldCenterID', $get("fldSrchCenterID").value, 'int');
+        //if ($get('trSrchCenter').style.display == "none")
+        //    srch = getFldJSONsrch(srch, 'fldCenterID', "0", 'int');
+        //else
+        srch = getFldJSONsrch(srch, 'fldCenterID', $get("fldSrchCenterID").value, 'int');
         srch = getFldJSONsrch(srch, 'fldTargetEnv', $get("fldTargetEnv").value, 'int');
         srch = getFldJSONsrch(srch, 'fldMngNote', $get("fldMngNote").value, 'string');
         var newData = getDataForSaveTree(treeID);
@@ -140,12 +140,12 @@ function clearProblemPreserveTrees() {
 function dispEditFields(type) {
     if (type == "problem")
     {
-        $get("trOrderID").style.display = "";
+        $get("trDisplayAdd").style.display = "";
         dispPreserveFields("none", "none");
     }
     else
     {
-        $get("trOrderID").style.display = "";
+        $get("trDisplayAdd").style.display = "";
         //var checked = $('input[type=radio]:checked', '#rblCenterTree').val();
         //var dispCenterFields = checked == "MainTree" ? "none" : "";
         dispPreserveFields("", "");
@@ -154,7 +154,6 @@ function dispEditFields(type) {
 function dispPreserveFields(disp,dispCenterFields) {
     $get("trPreserveTypeMrkzID").style.display = disp;
     $get("trPreserveTigmulID").style.display = disp;
-    $get("trDisplayAdd").style.display = disp;
     $get("trDaysDiff").style.display = disp;
     $get("trSLA").style.display = disp;
     $get("trSLA2").style.display = disp;
@@ -167,7 +166,6 @@ function dispPreserveFields(disp,dispCenterFields) {
 }
 function clearPreserveProblemNode()
 {
-    $get("fldOrderID").value = "";
     $get("fldPreserveTigmulID").value = "";
     $get("fldPreserveTypeMrkzID").value = "";
     $get("fldDisplayAdd").checked = false;

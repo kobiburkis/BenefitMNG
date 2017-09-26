@@ -79,16 +79,7 @@
                                             <asp:Label CssClass="lbl" Width="125px" runat="server" ID="lblExtraDetails" Text="הגדרות נוספות:"  />
                                             <asp:Label CssClass="lblTitle" runat="server" ID="lblExtraDetailsSpec" />
                                         </td>
-                                    </tr> 
-                                    <tr runat="server" id="trOrderID" style="display:none">
-                                        <td style="width:125px;" >
-                                           <asp:Label CssClass="lbl" runat="server" ID="lblOrderID" Text="מיון : " />
-                                        </td>
-                                        <td>
-                                           <asp:TextBox CssClass="fldTable" runat="server" ID="fldOrderID" onChange="dataChanged(1);" ></asp:TextBox>
-                                        </td>
-                                    </tr>
-                                    
+                                    </tr>                 
                                      <tr runat="server" id="trPreserveTypeMrkzID" style="display:none">
                                         <td style="width:125px;" >
                                            <asp:Label CssClass="lbl" runat="server" ID="lblPreserveTypeMrkzID" Text="הליך מרכז : " />

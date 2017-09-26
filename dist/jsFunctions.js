@@ -176,6 +176,13 @@ function clearSelectedNode(treeID, objID) {
         clearPreserveProblemNode();
     return true;
 }
+function deselectAllNodes(treeID) {
+    $("#" + treeID).jstree(true).deselect_all();
+}
+function selectNode(treeID, objId) {
+    var selector = $("#" + treeID)[0];
+    $("#" + treeID).jstree("select_node", $.jstree.reference(selector)._model.data[objId]).trigger("select_node.jstree");
+}
 function getJsonTreeData(data, treeLevel, RootLevelType, InLevelType) {
     if (treeLevel == 1) {
         var json_data = '[{ "id" : "' + data[0].id + '" ,"text" : ' + JSON.stringify(data[0].nodeText) + ', "type": "' + RootLevelType + '","data":[' + JSON.stringify(data[0].data) + '], "children"    : [';
@@ -298,8 +305,12 @@ function saveNodeData(treeID) {
             //Example: var newData = '{"fldSekerID":"1","fldTeamTorType":"2"}';
             var newData = getJsonDataFromFields('fstExtraFields');
             var data = '{' + newData + '}';
-            obj[0].data.pop();
-            obj[0].data.push(data);
+            if (obj[0].data) {
+                obj[0].data.pop();
+                obj[0].data.push(data);
+            }
+            else
+                obj[0].data = JSON.stringify(data);
             dataChanged(0);
             $(treeID).jstree(true).setChangedNode(obj[0].id);
             if (obj[0].type == "preserve")
@@ -331,7 +342,7 @@ function getJsonDataFromFields(fieldSetID) {
     var data = bnft_getJSON($get(fieldSetID));
     return data;
 }
-function setJsonDataToFields(obj,fromNew) {
+function setJsonDataToFields(obj,fromNew,treeID) {
     //Exa    
     var jsonData = obj.data;
     var fields = JSON.parse(jsonData);
@@ -342,8 +353,11 @@ function setJsonDataToFields(obj,fromNew) {
         if ("team,dep".indexOf(obj.type) < 0)
             dispEditFields(obj.type);  //Every Frm Must have this function
     }
-    if (fromNew == 1)
+    if (fromNew == 1) {
         dataChanged(2);
+        deselectAllNodes(treeID);
+        selectNode(treeID,obj.id);
+    }
     if (fields && Object.keys(fields).length > 0) {
         var keys = Object.keys(fields);
         for (var i = 0, emp; i < keys.length; i++) {
@@ -381,8 +395,13 @@ function bnft_code(ch) { return ch.charCodeAt(0); }
 function bnft_getFldJSON(sFld, sVal) {
     if (!sVal || sVal.toString().length == 0)
         return '';
-    else
+    else {
+        if (sVal== true)
+            sVal = "1";
+        if (sVal == false)
+            sVal = "0";
         return '"' + sFld + '":' + JSON.stringify(sVal);
+    }
 }
 function bnft_getJSON(el) {
     if (typeof el === 'undefined' || typeof el.tagName === 'undefined')

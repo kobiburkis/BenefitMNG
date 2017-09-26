@@ -3750,6 +3750,7 @@
 			    node = $.extend(true, {}, node);
 			    var nodeText = getNewNodeText(node.type);
 			    node.text = this.get_string(nodeText);
+			    node.data = ['{}'];
 			}
 			if(node.text === undefined) { node.text = this.get_string('New node'); }
 			var tmp, dpc, i, j;
@@ -4486,7 +4487,7 @@
 									this._data.core.focused = tmp.id;
 									node.children('.jstree-anchor').focus();
 									if (tmp.id.indexOf("j1")>-1) //newNode Not Rename
-									  setJsonDataToFields(tmp, 1);
+									    setJsonDataToFields(tmp, 1, this.element[0].id);
 								}
 							}, this), 0);
 							if(callback) {
