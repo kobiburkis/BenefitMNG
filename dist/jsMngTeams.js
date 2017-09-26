@@ -1,5 +1,5 @@
-﻿var centerTreeTypes = { "team": { "icon": "dist/themes/default/team.png", "valid_children": [] }, "depr": { "icon": "dist/themes/default/depr.png", "valid_children": ["team"] }, "#": { "valid_children": ["depr"] } };
-var otherTreeTypes = {"team":{"icon":"dist/themes/default/team.png","valid_children":[]},"depr":{"icon":"dist/themes/default/depr.png","valid_children":[]},"#":{"valid_children":[]}};
+﻿var centerTreeTypes = { "team": { "icon": "dist/themes/default/team.png", "valid_children": [] }, "dep": { "icon": "dist/themes/default/depr.png", "valid_children": ["team"] }, "#": { "valid_children": ["dep"] } };
+var otherTreeTypes = {"team":{"icon":"dist/themes/default/team.png","valid_children":[]},"dep":{"icon":"dist/themes/default/depr.png","valid_children":[]},"#":{"valid_children":[]}};
 var centerTreePlugins =["contextmenu", "unique", "dnd", "types"];
 var otherTreePlugins = ["dnd", "types", "search"];
 var centerTreeSearch;
@@ -8,9 +8,8 @@ var centerTreeDND = {};
 var otherTreeDND = {'always_copy': false};
 
 function onLoad() {
-    //$('fldSourceEnv').data('pre', $('fldSourceEnv').val());
-    //$('fldSrchCenterID').data('pre', $('fldSrchCenterID').val());
     addIntegerHandler("fldSekerID");
+    addMustClass("fldSekerID");
 }
 function getTeamsData(centerID, sourceEnv, other) {
     try {
@@ -26,9 +25,9 @@ function getTeamsData(centerID, sourceEnv, other) {
             if (other == 1)
                 var json_data = JSON.parse(getJsonTreeData(data.data, 2, null, "team"));
             else if (other == 2)
-                var json_data = JSON.parse(getJsonTreeData(data.data, 2, null, "depr"));
+                var json_data = JSON.parse(getJsonTreeData(data.data, 2, null, "dep"));
             else
-                var json_data = JSON.parse(getJsonTreeData(data.data, 1, "depr", "team"));
+                var json_data = JSON.parse(getJsonTreeData(data.data, 1, "dep", "team"));
             return json_data;
         }
         else {
@@ -50,86 +49,6 @@ function getTeamsData(centerID, sourceEnv, other) {
     }
 }
 
-/* MOVED TO GLOBAL jsFunctions
-function show_tree(treeID, json_data) {
-    try {
-        treeID = "#" + treeID;
-        $(treeID).jstree("destroy");
-        if (treeID.indexOf("other") > -1) {
-            $(treeID).jstree({
-                "core": {
-                    "check_callback": function (op, node, par, pos, more) {
-                        //if ((op === "move_node" || op === "copy_node") && node.type && node.type == "depr") {
-                        //    return false;
-                        //}
-                        return true;
-                    },
-                    "data": json_data
-
-                },
-                "types": {
-                    "team": {
-                        "icon": "dist/themes/default/team.png",
-                        "valid_children": []
-                    },
-                    "depr": {
-                        "icon": "dist/themes/default/depr.png",
-                        "valid_children": []
-                    },
-                    "#": {
-                        "valid_children": []
-                    }
-                },
-                'search': {
-                    'case_insensitive': true,
-                    'show_only_matches': true
-                },
-                'dnd': {
-                    'always_copy': false
-                },
-                "plugins": ["dnd", "types", "search"]
-            });
-
-            $('#fldSearchValues').keyup(function () {
-                $(treeID).jstree(true).show_all();
-                $(treeID).jstree('search', $(this).val());
-            });
-        }
-        else {
-            $(treeID).jstree({
-                "core": {
-                    "check_callback": function (op, node, par, pos, more) {
-                        //if ((op === "move_node" || op === "copy_node") && node.type && node.type == "depr") {
-                        //    return false;
-                        //}
-                        return true;
-                    },
-                    "data": json_data
-
-                },
-                "types": {
-                    "team": {
-                        "icon": "dist/themes/default/team.png",
-                        "valid_children": []
-                    },
-                    "depr": {
-                        "icon": "dist/themes/default/depr.png",
-                        "valid_children": ["team"]
-                    },
-                    "#": {
-                        "valid_children": ["depr"]
-                    }
-                },
-                "plugins": ["contextmenu", "unique", "dnd", "types"]
-            });
-            // $get("cntlPanel").style.display = "";
-        }
-    }
-    catch (e) {
-        openMsg("שגיאה בטעינת צוותים", 1);
-        top.status = "Error In show_tree:" + e.message.toString();
-    }
-}*/
 function saveTreeData(treeID) {
     if (checkMngMustFields()) {
         var srch = '';

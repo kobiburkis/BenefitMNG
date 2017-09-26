@@ -2149,7 +2149,10 @@
 			if(p) { ps.unshift(p); }
 			var tid = false, i, j, c, e, m = this._model.data, df = this._model.default_state, tmp;
 			do {
-				tid = 'j' + this._id + '_' + (++this._cnt);
+                var parentExt ='';
+			    if (p != "#")
+		          parentExt = '*' +p.substr(p.indexOf('_') +1);
+				tid = 'j' + this._id + '_' + (++this._cnt)+parentExt;
 			} while(m[tid]);
 
 			tmp = {
@@ -3153,9 +3156,6 @@
 		 */
 		select_node : function (obj, supress_event, prevent_open, e) {
 		    var dom, t1, t2, th;
-		    var selectedNode = $get("selectedNode").value;
-		    if (typeof(obj) == "object" && obj.id != selectedNode && selectedNode!= '')
-		        checkClearSelectionNode(this.element[0].id, obj.id); //this.element[0].id == tree.ID
 			if($.isArray(obj)) {
 				obj = obj.slice();
 				for(t1 = 0, t2 = obj.length; t1 < t2; t1++) {
@@ -3186,6 +3186,9 @@
 				 * @param {Object} event the event (if any) that triggered this select_node
 				 */
 				this.trigger('select_node', { 'node' : obj, 'selected' : this._data.core.selected, 'event' : e });
+                var selectedNode = $get("selectedNode").value;
+		        if (typeof (obj) == "object" && obj.id != selectedNode && selectedNode != '')
+		            checkClearSelectionNode(this.element[0].id, obj.id, this.get_node(selectedNode).type); //this.element[0].id == tree.ID
 				if(!supress_event) {
 					/**
 					 * triggered when selection changes
@@ -3730,8 +3733,7 @@
 		 * @trigger model.jstree, create_node.jstree
 		 */
 		create_node : function (par, node, pos, callback, is_loaded) {
-		    if (par === null || $.jstree.parentsTypes.toString().indexOf(node.type)>-1) { par = $.jstree.root;
-		    }
+		    if (par === null || $.jstree.parentsTypes.toString().indexOf(node.type)>-1) { par = $.jstree.root;}
 			par = this.get_node(par);
 			if(!par) { return false; }
 			pos = pos === undefined ? "last" : pos;
@@ -3784,7 +3786,7 @@
 				this.settings.core.error.call(this, this._data.core.last_error);
 				return false;
 			}
-			if(node.id === true) { delete node.id; }
+			if (node.id === true) { delete node.id; }
 			node = this._parse_model_from_json(node, par.id, par.parents.concat());
 			if(!node) { return false; }
 			tmp = this.get_node(node);
@@ -4245,7 +4247,7 @@
 			        node.a_attr.id = newNodeID + '_anchor';
                     node.li_attr.id = newNodeID;
 			    }
-			    if (old_par == "#" && ("team,depr".indexOf(node.type) <0)) { //Copy From Other Tree
+			    if (old_par == "#" && ("team,dep".indexOf(node.type) <0)) { //Copy From Other Tree
 			        var newNodeID = node.id +parentExt;
 			        node.id = newNodeID;
 			        node.a_attr.id = newNodeID + '_anchor';
@@ -4483,6 +4485,8 @@
 								if(node.length) {
 									this._data.core.focused = tmp.id;
 									node.children('.jstree-anchor').focus();
+									if (tmp.id.indexOf("j1")>-1) //newNode Not Rename
+									  setJsonDataToFields(tmp, 1);
 								}
 							}, this), 0);
 							if(callback) {
@@ -4497,7 +4501,8 @@
 								this.value = t;
 							}
 							if(key === 27 || key === 13 || key === 37 || key === 38 || key === 39 || key === 40 || key === 32) {
-								e.stopImmediatePropagation();
+							    e.stopImmediatePropagation();
+                                
 							}
 							if(key === 27 || key === 13) {
 								e.preventDefault();
@@ -5957,7 +5962,6 @@
 		                inst.create_node(obj, { type: obj.type }, "first", function (new_node) {
 		                    try {
 		                        inst.edit(new_node);
-		                        setJsonDataToFields(new_node, 1);
 		                    } catch (ex) {
 		                        setTimeout(function () { inst.edit(new_node); }, 0);
 		                    }
@@ -5979,8 +5983,7 @@
 						var nodeType = inst.settings.types[obj.type].valid_children[0];
 						inst.create_node(obj, {type:nodeType}, "last", function (new_node) {
 						    try {
-						        inst.edit(new_node);
-                                setJsonDataToFields(new_node, 1);
+						        inst.edit(new_node);                              
 							} catch (ex) {
 								setTimeout(function () { inst.edit(new_node); },0);
 							}
@@ -6803,6 +6806,8 @@
 				if(ins && ins._data && ins._data.dnd) {
 					marker.attr('class', 'jstree-' + ins.get_theme() + ( ins.settings.core.themes.responsive ? ' jstree-dnd-responsive' : '' ));
 					is_copy = data.data.origin && (data.data.origin.settings.dnd.always_copy || (data.data.origin.settings.dnd.copy && (data.event.metaKey || data.event.ctrlKey)));
+					if (data.data.origin.settings.types[data.data.nodes[0].substring(0, data.data.nodes[0].indexOf("_")).toLowerCase()].valid_children.length > 0)
+					    is_copy = false;
 					data.helper
 						.children().attr('class', 'jstree-' + ins.get_theme() + ' jstree-' + ins.get_theme() + '-' + ins.get_theme_variant() + ' ' + ( ins.settings.core.themes.responsive ? ' jstree-dnd-responsive' : '' ))
 						.find('.jstree-copy').first()[ is_copy ? 'show' : 'hide' ]();
@@ -6867,6 +6872,8 @@
 								ok = true;
 								for(t1 = 0, t2 = data.data.nodes.length; t1 < t2; t1++) {
 									op = data.data.origin && (data.data.origin.settings.dnd.always_copy || (data.data.origin.settings.dnd.copy && (data.event.metaKey || data.event.ctrlKey))) ? "copy_node" : "move_node";
+									if (data.data.origin.settings.dnd.always_copy && data.data.origin.settings.types[data.data.nodes[0].substring(0, data.data.nodes[0].indexOf("_")).toLowerCase()].valid_children.length > 0)
+					                     op = "move_node";
 									ps = i;
 									if(op === "move_node" && v === 'a' && (data.data.origin && data.data.origin === ins) && p === ins.get_parent(data.data.nodes[t1])) {
 										pr = ins.get_node(p);

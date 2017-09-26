@@ -28,6 +28,12 @@
              <td>
                 <asp:DropDownList id="fldSourceEnv" CssClass="fldTable" runat="server"  OnChange ="reloadCenterCombo();"></asp:DropDownList>              
             </td>   
+               <td style="direction: ltr;">
+              <asp:Label CssClass="lbl" runat="server" ID="lblSrchCenterID" Text=":מוקד" />
+           </td>
+           <td>
+                <asp:DropDownList id="fldSrchCenterID" CssClass="fldTable" runat="server"  OnChange ="getProblemPreserveTrees();"></asp:DropDownList>              
+            </td>
             <td>
                <asp:Label CssClass="lbl" runat="server" ID="lblMngNote" Text="הערה ל-MNG:" />
             </td>
@@ -41,25 +47,20 @@
                 <asp:DropDownList runat="server" CssClass="fldTable" ID="fldTargetEnv"></asp:DropDownList>
             </td> 
             <td>
-               <asp:Button ID="btnSaveTree" CssClass="btnH" UseSubmitBehavior="false" runat="server" Text="שמור שינויים" OnClientClick="return saveTreeData('#centerTeamTree');" />
+               <asp:Button ID="btnSaveTree" CssClass="btnH" UseSubmitBehavior="false" runat="server" Text="שמור שינויים" OnClientClick="return saveTreeData('#centerProblemPreserveTree');" />
             </td>     
         </tr>
-        <tr>
-            <td>
+<%--        <tr>
+            <td colspan="7">
                <asp:RadioButtonList ID="rblCenterTree" runat="server" CssClass="radioBtn" onChange="getProblemPreserveTrees();">
-                <asp:ListItem Value="MainTree" Text="מקור\הליך" />
-                <asp:ListItem Value="CenterTree" Text="מקור\הליך לפי מוקד" />
+                <asp:ListItem Value="MainTree" Text="מקור/הליך" />
+                <asp:ListItem Value="CenterTree" Text="מקור/הליך לפי מוקד" />
                </asp:RadioButtonList>
             </td>
         </tr>
          <tr id="trSrchCenter" runat="server" style="display:none">
-           <td style="direction: ltr;">
-              <asp:Label CssClass="lbl" runat="server" ID="lblSrchCenterID" Text=":מוקד" />
-           </td>
-           <td>
-                <asp:DropDownList id="fldSrchCenterID" CssClass="fldTable" runat="server"  OnChange ="getProblemPreserveTrees();"></asp:DropDownList>              
-            </td>
-        </tr>
+        
+        </tr>--%>
         </table>
         <table>
         <tr>
@@ -81,7 +82,7 @@
                                     </tr> 
                                     <tr runat="server" id="trOrderID" style="display:none">
                                         <td style="width:125px;" >
-                                           <asp:Label CssClass="lbl" runat="server" ID="lblOrderID" Text="Order : " />
+                                           <asp:Label CssClass="lbl" runat="server" ID="lblOrderID" Text="מיון : " />
                                         </td>
                                         <td>
                                            <asp:TextBox CssClass="fldTable" runat="server" ID="fldOrderID" onChange="dataChanged(1);" ></asp:TextBox>
@@ -165,7 +166,7 @@
                                            <asp:Label CssClass="lbl" runat="server" ID="lblDoctorEmplDepartmentIDs" Text="מחלקות/קודי זיהוי: " />
                                         </td>
                                         <td>
-                                           <asp:TextBox CssClass="fldTable" runat="server" ID="fldDoctorEmplDepartmentIDs" onChange="dataChanged(1);" ></asp:TextBox>
+                                           <asp:TextBox CssClass="fldTable" runat="server" ID="fldDoctorEmplDepartmentIDs" onChange="checkIsNumbersSequence(this);dataChanged(1);" ></asp:TextBox>
                                        </td>
                                     </tr>  
                                      <tr runat="server" id="trDoctorSourceID2" style="display:none">
@@ -181,7 +182,7 @@
                                            <asp:Label CssClass="lbl" runat="server" ID="lblDoctorEmplDepartmentIDs2" Text="מחלקות/קודי זיהוי 2: " />
                                         </td>
                                         <td>
-                                           <asp:TextBox CssClass="fldTable" runat="server" ID="fldDoctorEmplDepartmentIDs2" onChange="dataChanged(1);" ></asp:TextBox>
+                                           <asp:TextBox CssClass="fldTable" runat="server" ID="fldDoctorEmplDepartmentIDs2" onChange="checkIsNumbersSequence(this);dataChanged(1);" ></asp:TextBox>
                                        </td>
                                     </tr>        
                                     <tr>

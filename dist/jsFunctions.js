@@ -8,6 +8,14 @@ function addIntegerHandler(fieldsList)
             $addHandlers(el, integer_hand, el);
     }
 }
+function addMustClass(fieldsList) {
+    var list = fieldsList.split(',');
+    for (var i = 0; i < list.length; i++) {
+        var el = $get(list[i]);
+        if (el)
+            el.classList.add("must");
+    }
+}
 function btnConfiguration(btnType, btnYFunc, btnNFunc) {
     if (btnType == 1) {
         var btnConfig =
@@ -57,10 +65,10 @@ function openMsg(text, btnType, btnYFunc, btnNFunc) {
 function savePreValues() {
     $("#fldSrchCenterID").data('pre', $("#fldSrchCenterID").val());
     $("#fldSourceEnv").data('pre', $("#fldSourceEnv").val());
-    if ($('#rblCenterTree')[0]) {
-        var checked = $('input[type=radio]:checked', '#rblCenterTree')[0].id;
-        $("#rblCenterTree").data('pre', checked);
-    }
+    //if ($('#rblCenterTree')[0]) {
+    //    var checked = $('input[type=radio]:checked', '#rblCenterTree')[0].id;
+    //    $("#rblCenterTree").data('pre', checked);
+    //}
 
 
 }
@@ -69,10 +77,10 @@ function setPreValues() {
     $get("fldSrchCenterID").value = before_change;
     before_change = $("#fldSourceEnv").data('pre');
     $get("fldSourceEnv").value = before_change;
-    if ($('#rblCenterTree')[0]) {
-        before_change = $("#rblCenterTree").data('pre');
-        $("#" + before_change).prop("checked", true)
-    }
+    //if ($('#rblCenterTree')[0]) {
+    //    before_change = $("#rblCenterTree").data('pre');
+    //    $("#" + before_change).prop("checked", true)
+    //}
 
 }
 
@@ -119,32 +127,45 @@ function setRemovedNode(inst, obj) {
             $get(obj.id + "_anchor").classList.add("nodeDeleted");
     }
 }
-function getChangeNodeMsg(treeID, objID) {
-    if (treeID == 'centerTeamTree')
-        return 'בוצע שינוי בצוות - האם לצאת ללא שמירה ?';
-    return 'בוצעו שינויים - האם לצאת ללא שמירה';
+function getChangeNodeMsg(treeID, objID, objType) {
+    var msg = "";
+    switch (objType.toUpperCase()) {
+        case "TEAM": return 'בוצע שינוי בצוות - האם לצאת ללא שמירה ?';
+        case "PROBLEM": return 'בוצע שינוי במקור - האם לצאת ללא שמירה ?';
+        case "PRESERVE": return 'בוצע שינוי בהליך שימור - האם לצאת ללא שמירה ?';
+        default: return 'בוצעו שינויים - האם לצאת ללא שמירה';
+    }
 }
-
-function checkClearSelectionNode(treeID, objID) {
+function checkClearSelectionNode(treeID, objID, objType) {
     if ($get("nodeDataChanged").value == "1") {
-        var funcAfterYes = "clearSelectedNode('" + treeID + "'," + objID + ")";
-        var funcAfterNo = "backToSelectedNode('" + treeID + "')";
-        var msg = getChangeNodeMsg(treeID, objID);
+        var funcAfterYes = "clearSelectedNode('" + treeID + "','" + objID + "')";
+        var funcAfterNo = "backToSelectedNode('" + treeID + "','" + objID + "')";
+        var msg = getChangeNodeMsg(treeID, objID, objType);
         openMsg(msg, 2, funcAfterYes, funcAfterNo);
+    }
+    else if ($get("nodeDataChanged").value == "2") {
+        if (!(checkExtraFieldsMust() && ((typeof checkSpecialExtraFields == 'undefined') || (typeof checkSpecialExtraFields != 'undefined' && checkSpecialExtraFields()))))
+            backToSelectedNode(treeID,objID);
+        else
+            clearSelectedNode(treeID, objID);
     }
     else
         clearSelectedNode(treeID, objID);
 }
-function backToSelectedNode(treeID)
+function backToSelectedNode(treeID,objID)
 {
+    objID = objID.replace("_anchor", "");
     if (treeID.indexOf("other") < 0) { ///if select is on other tree - no action needed
         var selectedNode = $get("selectedNode").value;
         var selector = $("#" + treeID)[0];
-        $("#" + treeID).jstree("deselect_node", $(selector).jstree("get_selected", true)[0]).trigger("deselect_node.jstree");
+        //if ($(selector).jstree("get_selected", true).length>0)
+        //   $("#" + treeID).jstree("deselect_node", $(selector).jstree("get_selected", true)[0]).trigger("deselect_node.jstree");
+        //$("#" + treeID).jstree(true).deselect_all();
+        $("#" + treeID).jstree("deselect_node", $.jstree.reference(selector)._model.data[objID]).trigger("deselect_node.jstree");
         $("#" + treeID).jstree("select_node", $.jstree.reference(selector)._model.data[selectedNode]).trigger("select_node.jstree");
     }
+    return false;
 }
-   
 function clearSelectedNode(treeID, objID) {
     $get("nodeDataChanged").value = "0";
     $get("selectedNode").value = "";
@@ -153,6 +174,7 @@ function clearSelectedNode(treeID, objID) {
         clearTeamNode();
     if (treeID == 'centerProblemPreserveTree')
         clearPreserveProblemNode();
+    return true;
 }
 function getJsonTreeData(data, treeLevel, RootLevelType, InLevelType) {
     if (treeLevel == 1) {
@@ -214,6 +236,14 @@ function show_tree(treeID, json_data, types, search, dnd, plugins) {
             $(treeID).jstree({
                 "core": {
                     "check_callback": function (op, node, par, pos, more) {
+                        if (more) {///Allows Reorder Of Nodes Where always_copy = true;
+                            var alwaysCopyFlag = typeof centerTreeDND['always_copy'] == "undefined" || centerTreeDND['always_copy'] == false ? false : true;
+                            more.origin.settings.dnd.always_copy = alwaysCopyFlag;
+                            if (par.type == "#" && alwaysCopyFlag)
+                                more.origin.settings.dnd.always_copy = false;
+                            if (par.type != "#" && node.parent == par.id && alwaysCopyFlag)
+                                more.origin.settings.dnd.always_copy = false;
+                        }
                         return true;
                     },
                     "data": json_data
@@ -246,7 +276,6 @@ function checkMngMustFields()
     $get("fldMngNote").style.backgroundColor = '';
     return true;
 }
-
 function getDataForSaveTree(treeID)
 {
     var v = $(treeID).jstree(true).get_json('#', { flat: true });
@@ -261,19 +290,24 @@ function getDataForSaveTree(treeID)
     newData = newData + ']';
     return newData;
 }
-
 function saveNodeData(treeID) {
     var obj = $(treeID).jstree("get_selected", true);
-    //Example: var newData = '{"fldSekerID":"1","fldTeamTorType":"2"}';
-    var newData = getJsonDataFromFields('fstExtraFields');
-    var data = '{' + newData + '}';
-    obj[0].data.pop();
-    obj[0].data.push(data);
-    dataChanged(0);
-    $(treeID).jstree(true).refresh_node(obj[0].id);
-    if (obj[0].type == "preserve")
-        propogateNodeData(treeID, obj[0].id, data);
-        
+    if ($get("nodeDataChanged").value == "1") {
+        if (checkExtraFieldsMust() && ((typeof checkSpecialExtraFields == 'undefined') || (typeof checkSpecialExtraFields != 'undefined' && checkSpecialExtraFields()))) {
+            var obj = $(treeID).jstree("get_selected", true);
+            //Example: var newData = '{"fldSekerID":"1","fldTeamTorType":"2"}';
+            var newData = getJsonDataFromFields('fstExtraFields');
+            var data = '{' + newData + '}';
+            obj[0].data.pop();
+            obj[0].data.push(data);
+            dataChanged(0);
+            $(treeID).jstree(true).setChangedNode(obj[0].id);
+            if (obj[0].type == "preserve")
+                propogateNodeData(treeID, obj[0].id, data);
+        }
+    }
+    else
+        clearSelectedNode(treeID, obj[0].id);
 }
 function propogateNodeData(treeID,objId,data)
 {
@@ -286,12 +320,10 @@ function propogateNodeData(treeID,objId,data)
         if (objSearch && objSearch.id != objId) {
             objSearch.data.pop();
             objSearch.data.push(data);
-            $(treeID).jstree(true).refresh_node(objSearch.id);
+            $(treeID).jstree(true).setChangedNode(objSearch.id);
         }
     }
 }
-
-
 function dataChanged(change) {
     $get("nodeDataChanged").value = change;
 }
@@ -303,14 +335,15 @@ function setJsonDataToFields(obj,fromNew) {
     //Exa    
     var jsonData = obj.data;
     var fields = JSON.parse(jsonData);
-    if (obj.type != "depr") {
+    if (obj.type != "dep") {
         $get("selectedNode").value = obj.id;
         $get("ExtraFields").style.display = "";
         $get("lblExtraDetailsSpec").innerText = obj.text;
-        if ("team,depr".indexOf(obj.type) < 0)
+        if ("team,dep".indexOf(obj.type) < 0)
             dispEditFields(obj.type);  //Every Frm Must have this function
     }
-    
+    if (fromNew == 1)
+        dataChanged(2);
     if (fields && Object.keys(fields).length > 0) {
         var keys = Object.keys(fields);
         for (var i = 0, emp; i < keys.length; i++) {
@@ -344,97 +377,39 @@ function bnft_pressNum() {
 }
 function bnft_isNum(key) { return (key >= bnft_code('0') && key <= bnft_code('9')); }
 function bnft_code(ch) { return ch.charCodeAt(0); }
-function bnft_fld(el) {
-    return el && el.name;
-}
+
 function bnft_getFldJSON(sFld, sVal) {
-    if (sFld.indexOf('$') != -1) {
-        if (sFld.indexOf("fixCtl") != -1) {
-            sFld = sFld.substring(sFld.lastIndexOf('fixCtl') + 7);
-            sFld = sFld.replace(/\$/g, '_');
-        }
-        else if (sFld.indexOf("custIdent") != -1) {
-            sFld = sFld.substring(sFld.lastIndexOf('custIdent') + 10);
-            sFld = sFld.replace(/\$/g, '_');
-        }
-        else if (sFld.indexOf("CustIdentModalGlbl") != -1) {
-            sFld = sFld.substring(sFld.lastIndexOf('CustIdentModalGlbl') + 19);
-            sFld = sFld.replace(/\$/g, '_');
-        }
-        else if (sFld.indexOf("Glbl$") != -1) { // fields inside modal jquery window
-            sFld = sFld.replace(/\$/g, '_');
-        }
-        else
-            return '';
-    }
     if (!sVal || sVal.toString().length == 0)
         return '';
     else
         return '"' + sFld + '":' + JSON.stringify(sVal);
 }
-function bnft_srchInputJSON(el, prefix) {
-    switch (el.type.toUpperCase()) {
-        case 'TEXT':
-        case 'HIDDEN':
-            if (prefix)
-                return bnft_getFldJSON(el.name.substring(prefix.length), el.value);
-            return bnft_getFldJSON(el.name, el.value);
-        case 'RADIO':
-        case 'CHECKBOX':
-            if (el.checked) {
-                if (prefix)
-                    return bnft_getFldJSON(el.name.substring(prefix.length), el.value);
-                return bnft_getFldJSON(el.name, el.value);
-            }
-            else
-                return "";
-        default:
-            return "";
-    }
-}
-function bnft_getJSON(el, prefix, notIn) {
+function bnft_getJSON(el) {
     if (typeof el === 'undefined' || typeof el.tagName === 'undefined')
         return "";
-    if (notIn)
-        if (el.name && el.name.indexOf(notIn) != -1)
-            return "";
     var srch = "";
     var fld;
-    switch (el.tagName.toUpperCase()) {
-        case 'INPUT':
-            if (bnft_fld(el)) {
-                fld = bnft_srchInputJSON(el, prefix);
-                if (fld != '') {
-                    if (srch != '')
-                        srch += ',';
-                    srch += fld;
+    var fldJson;
+    var fields = el.getElementsByClassName('fldTable');
+    if (fields && fields.length > 0) {
+        for (var i = 0; i < fields.length; i++) {
+            fld = fields[i];
+            fldJson = '';
+            if (fld.parentElement.parentElement && fld.parentElement.parentElement.style.display == "") {
+                switch (fld.tagName.toUpperCase()) {
+                    case 'INPUT':
+                    case 'SELECT': fldJson = bnft_getFldJSON(fld.id, fld.value);
+                                   break;
+                    case 'SPAN': if (fld.firstChild.type.toUpperCase() == "CHECKBOX")
+                        fldJson = bnft_getFldJSON(fld.firstChild.id, fld.firstChild.checked);
+                                 break;
                 }
             }
-            break;
-        case 'TEXTAREA':
-        case 'SELECT':
-            if (prefix)
-                fld = bnft_getFldJSON(el.name.substring(prefix.length), el.value);
-            else
-                fld = bnft_getFldJSON(el.name, el.value);
-            if (fld != '') {
-                if (srch != '')
-                    srch += ',';
-                srch += fld;
-            }
-            break;
-        default:
-            for (var i = 0; i < el.childNodes.length; i++) {
-                fld = bnft_getJSON(el.childNodes[i], prefix, notIn);
-                if (fld != '') {
-                    if (srch != '')
-                        srch += ',';
-                    srch += fld;
-                }
-            }
-            break;
+            if (fldJson!='')
+                srch +=  srch=="" ? fldJson : ',' + fldJson;
+        }
     }
-    return srch;
+  return srch;
 }
 function getFldJSONsrch(srch, sFld, sVal, sType) {
     var currSrch = '"' + sFld + '":';
@@ -488,19 +463,24 @@ function checkContextMenuAvailabilty(data, action) {
     var inst = $.jstree.reference(data.reference),
 	obj = inst.get_node(data.reference);
     var objType = obj.type;
-    var treeType = 'Center';
-    if ($('#rblCenterTree')[0]) {
-        var checked = $('input[type=radio]:checked', '#rblCenterTree').val();
-        if (checked == "MainTree")
-            treeType = 'Main';
-    }
-    if (treeType == 'Main' && action == "remove_center")
+
+    var selectedNode = $get("selectedNode").value;
+    if (selectedNode != '')
         return true;
+
+    //var treeType = 'Center';
+    //if ($('#rblCenterTree')[0]) {
+    //    var checked = $('input[type=radio]:checked', '#rblCenterTree').val();
+    //    if (checked == "MainTree")
+    //        treeType = 'Main';
+    //}
+    //if (treeType == 'Main' && action == "remove_center")
+    //    return true;
     if (("team" == objType) && (action == "create" || action == "create_root" || action == "remove_center"))
         return true;
     if (("preserve" == objType) && (action == "create" || action == "create_root"))
         return true;
-    if ((objType == "depr") && (action == "editData"))
+    if ((objType == "dep") && (action == "editData"))
         return true;
     return false;
 }
@@ -508,15 +488,15 @@ function getContextMenuLabel(data, action) {
     var inst = $.jstree.reference(data.reference),
 	obj = inst.get_node(data.reference);
     var objType = obj.type;
-    if (("depr,team".indexOf(objType) > -1) && (action == "create"))
+    if (("dep,team".indexOf(objType) > -1) && (action == "create"))
         return "צור צוות חדש";
-    if (("depr,team".indexOf(objType) > -1) && (action == "create_root"))
+    if (("dep,team".indexOf(objType) > -1) && (action == "create_root"))
         return "צור מחלקה חדשה";
     if (("problem,preserve".indexOf(objType) > -1) && (action == "create"))
         return "צור הליך חדש";
     if (("problem,preserve".indexOf(objType) > -1) && (action == "create_root"))
         return "צור מקור חדש";
-    if (("depr,team,problem,preserve".indexOf(objType) > -1) && (action == "remove_center"))
+    if (("dep,team,problem,preserve".indexOf(objType) > -1) && (action == "remove_center"))
     {
         if (obj.data && obj.data.toString().indexOf("fldRemove") > -1)
             return "החזר קישור למוקד";
@@ -530,7 +510,7 @@ function getNewNodeText(type) {
         case 'team':
             return "צוות חדש";
             break;
-        case 'depr':
+        case 'dep':
             return "מחלקה חדשה";
             break;
         case 'problem':
@@ -611,4 +591,59 @@ function menuChangePage(url)
 }
 function menuMoveToPage(url) {
     window.location.replace(url);
+}
+function checkExtraFieldsMust() {
+    var fields = $get('fstExtraFields').getElementsByClassName('must');
+    var checkMust = true;
+    if (fields && fields.length > 0)
+    {
+        for (var i = 0; i < fields.length; i++) {
+            if (fields[i].parentElement.parentElement && fields[i].parentElement.parentElement.style.display == "")//Check if the tr is displayed
+            {
+                if (fields[i].tagName.toUpperCase() == "INPUT")
+                {
+                    if (fields[i].value == "") {
+                        fields[i].style.backgroundColor = 'red';
+                        openMsg('שדה חובה', 1)
+                        checkMust = false;
+                    }
+                    else
+                        fields[i].style.backgroundColor = '';
+                }
+                if (fields[i].tagName.toUpperCase() == "SELECT") {
+                    if (fields[i].selectedIndex <= 0) {
+                        fields[i].style.backgroundColor = 'red';
+                        openMsg('שדה חובה', 1)
+                        checkMust = false;
+                    }
+                    else
+                        fields[i].style.backgroundColor = '';
+                }
+            }
+        }
+        return checkMust;
+    }
+    return checkMust;
+}
+function checkIsNumbersSequence(field) {
+    if (field.value == "")
+        return true;
+    var flag = true;
+    var valuesArray = field.value.trim().split(",");
+    for (i = 0; i < valuesArray.length; i++) {
+        var num = valuesArray[i].trim();
+        if (num == '0' || num =='') {
+            flag = false;
+            break;
+        }
+    }
+    if (!flag)
+    {
+        field.style.backgroundColor = 'red';
+        openMsg('השדה חייב להיות בפורמט של מספר או מספרים המופרדים ב , ', 1);
+       
+    }
+    else
+        field.style.backgroundColor = '';
+    return false;
 }

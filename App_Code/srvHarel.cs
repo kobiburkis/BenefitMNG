@@ -122,6 +122,30 @@ public class srvHarel : System.Web.Services.WebService
             return Newtonsoft.Json.JsonConvert.SerializeObject(ds, Newtonsoft.Json.Formatting.Indented);
         }
     }
+    [WebMethod(EnableSession = true)]
+    public string updateProblemPreserveTree(int fldCenterID, int fldTargetEnv, string fldMngNote, string doc)
+    {
+        DataSet ds = new DataSet();
+        DataTable dt = (DataTable)JsonConvert.DeserializeObject(doc, (typeof(DataTable)));
+        SqlParameter DataTblParam = new SqlParameter("@tblProbPreserve", SqlDbType.Structured);
+        DataTblParam.Value = dt;
+        try
+        {
+            ds = execSP(ds, "data", "BenefitMng.dbo.usp_Mng_saveProblemPreserveTree",
+                new SqlParameter("@fldCenterID", fldCenterID),
+                new SqlParameter("@fldTargetEnv", fldTargetEnv),
+                new SqlParameter("@fldMngNote", fldMngNote),
+                DataTblParam
+                );
+            return Newtonsoft.Json.JsonConvert.SerializeObject(ds, Newtonsoft.Json.Formatting.Indented);
+        }
+        catch (Exception ex)
+        {
+            //log(ex, null);
+            return Newtonsoft.Json.JsonConvert.SerializeObject(ds, Newtonsoft.Json.Formatting.Indented);
+        }
+    }
+
     #endregion
 
 }
