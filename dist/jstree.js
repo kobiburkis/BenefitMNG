@@ -4486,7 +4486,7 @@
 								if(node.length) {
 									this._data.core.focused = tmp.id;
 									node.children('.jstree-anchor').focus();
-									if (tmp.id.indexOf("j1")>-1) //newNode Not Rename
+									if (tmp.id.search(/j\d/i)>-1) //newNode Not Rename
 									    setJsonDataToFields(tmp, 1, this.element[0].id);
 								}
 							}, this), 0);
@@ -4549,7 +4549,20 @@
 		    if ($get(id+"_anchor"))
 		        $get(id + "_anchor").classList.add("nodeChanged");
             $get("treeDataChanged").value="1";
-         },
+	},
+	    /**
+            * changes css class of Node that changed
+            * @name setChangedNode(id)
+            * @param {String} node a_attr_id
+            */
+		setDisplayedNode: function (id) {
+		    this._model.data[id].a_attr['class']= "nodeDeleted";
+            this._model.data[id].li_attr['class']= "nodeDeleted";
+            if ($get(id))
+                $get(id).classList.add("nodeDeleted");
+		    if ($get(id+"_anchor"))
+		        $get(id + "_anchor").classList.add("nodeDeleted");
+	},
 
 		/**
 		 * changes the theme

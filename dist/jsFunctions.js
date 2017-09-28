@@ -83,7 +83,55 @@ function setPreValues() {
     //}
 
 }
+function setDisplayedNodes(inst, obj, loop) {
+    if (loop == 0)
+        setDisplayedNode(inst, obj);
+    else { //loop through tree foor objID instances
+        var idPrefix = obj.id.substring(0, obj.id.indexOf('*'));
+        var parentsArray = inst._model.data['#'].children;
+        for (var i = 0; i < parentsArray.length; i++) {
+            var parentExt = '*' + parentsArray[i].substr(parentsArray[i].indexOf('_') + 1);
+            var searchID = idPrefix + parentExt;
+            var objSearch = inst.get_node(searchID);
+            if (objSearch)
+                setDisplayedNode(inst, objSearch);
+        }
 
+    }
+}
+function setDisplayedNode(inst, obj) {
+    var objData = JSON.parse(obj.data);
+    if (objData.fldDisplayAdd == "0") {//Delete Remove Attribute
+        if (inst._model.data[obj.id].a_attr['class'].indexOf("nodeDeleted") == -1)
+            inst._model.data[obj.id].a_attr['class'] = inst._model.data[obj.id].a_attr['class'] + " nodeDeleted";
+        /*
+        if (inst._model.data[obj.id].li_attr['class'] && inst._model.data[obj.id].li_attr['class'].indexOf("nodeDeleted") == -1)
+            inst._model.data[obj.id].li_attr['class'] = inst._model.data[obj.id].li_attr['class'] + " nodeDeleted";
+        else
+            inst._model.data[obj.id].li_attr['class'] = "nodeDeleted";
+           
+        if ($get(obj.id))
+            $get(obj.id).classList.add("nodeDeleted");
+             */
+        if ($get(obj.id + "_anchor"))
+            $get(obj.id + "_anchor").classList.add("nodeDeleted");
+
+    }
+    else {
+        
+        if (inst._model.data[obj.id].a_attr['class'].indexOf("nodeDeleted") > -1)
+            inst._model.data[obj.id].a_attr['class'] = inst._model.data[obj.id].a_attr['class'].replace("nodeDeleted", "");
+        /*
+        if (inst._model.data[obj.id].li_attr['class'].indexOf("nodeDeleted") > -1)
+            inst._model.data[obj.id].li_attr['class'] = inst._model.data[obj.id].li_attr['class'].replace("nodeDeleted","");
+            
+        if ($get(obj.id))
+            $get(obj.id).classList.remove("nodeDeleted");
+            */
+        if ($get(obj.id + "_anchor"))
+            $get(obj.id + "_anchor").classList.remove("nodeDeleted");
+    }
+}
 function setRemovedNodes(inst, obj, loop) {
     $get("treeDataChanged").value = "1";
     if (loop == 0)
@@ -315,6 +363,13 @@ function saveNodeData(treeID) {
             $(treeID).jstree(true).setChangedNode(obj[0].id);
             if (obj[0].type == "preserve")
                 propogateNodeData(treeID, obj[0].id, data);
+            if (JSON.parse(obj[0].data).fldDisplayAdd)
+            {
+                if (obj[0].type == "preserve")
+                    setDisplayedNodes($(treeID).jstree(true), obj[0], 1);
+                else
+                    setDisplayedNodes($(treeID).jstree(true), obj[0], 0);
+            }           
         }
     }
     else
@@ -393,7 +448,7 @@ function bnft_isNum(key) { return (key >= bnft_code('0') && key <= bnft_code('9'
 function bnft_code(ch) { return ch.charCodeAt(0); }
 
 function bnft_getFldJSON(sFld, sVal) {
-    if (!sVal || sVal.toString().length == 0)
+    if (sVal.toString().length == 0)
         return '';
     else {
         if (sVal== true)
@@ -495,9 +550,11 @@ function checkContextMenuAvailabilty(data, action) {
     //}
     //if (treeType == 'Main' && action == "remove_center")
     //    return true;
-    if (("team" == objType) && (action == "create" || action == "create_root" || action == "remove_center"))
+    if (("team,preserve".indexOf(objType)>-1) && (action == "create" || action == "create_root" || action == "remove_center"))
         return true;
     if (("preserve" == objType) && (action == "create" || action == "create_root"))
+        return true;
+    if (("problem" == objType) && (action == "remove_center"))
         return true;
     if ((objType == "dep") && (action == "editData"))
         return true;
@@ -520,7 +577,7 @@ function getContextMenuLabel(data, action) {
         if (obj.data && obj.data.toString().indexOf("fldRemove") > -1)
             return "החזר קישור למוקד";
         else
-            return "מחר קישור למוקד";
+            return "מחק קישור למוקד";
     }
     return "חדש";
 }
