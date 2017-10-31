@@ -55,14 +55,14 @@ function saveTreeData(treeID) {
         //    srch = getFldJSONsrch(srch, 'fldCenterID', "0", 'int');
         //else
         srch = getFldJSONsrch(srch, 'fldCenterID', $get("fldSrchCenterID").value, 'int');
-        srch = getFldJSONsrch(srch, 'fldTargetEnv', $get("fldTargetEnv").value, 'int');
+        srch = getFldJSONsrch(srch, 'fldTargetEnv', $get("fldTargetEnv").value, 'string');
         srch = getFldJSONsrch(srch, 'fldMngNote', $get("fldMngNote").value, 'string');
         var newData = getDataForSaveTree(treeID);
         srch = getFldJSONsrch(srch, 'doc', newData, 'string');
 
         var data = getJQAJAX("srvHarel.asmx/updateProblemPreserveTree", '{' + srch + '}', false, 1);
         if (data && data.data) {
-            $get("treeDataChanged").value = "0";
+            $get("commonCtl_treeDataChanged").value = "0";
             openMsg('עידכון בוצע בהצלחה', 1);
             getProblemPreserveTrees();
         }
@@ -76,7 +76,7 @@ function saveTreeData(treeID) {
     }
 }
 function getProblemPreserveTrees() {
-    if ($get("treeDataChanged").value == "1")
+    if ($get("commonCtl_treeDataChanged").value == "1")
         openMsg('בוצע שינוי במקורות/הליכים - האם לצאת ללא שמירה ?', 2, 'getProblemPreserveTreeAfter();', 'setPreValues();');
     else
         getProblemPreserveTreeAfter();
@@ -100,7 +100,7 @@ function getOtherTrees() {
 }
 function getProblemPreserveTreeAfter() {
     clearSelectedNode();
-    $get("treeDataChanged").value = "0";
+    $get("commonCtl_treeDataChanged").value = "0";
     var sourceEnv = $get("fldSourceEnv").value;
    /* var checked = $('input[type=radio]:checked', '#rblCenterTree').val();
     //if (checked == "MainTree") {

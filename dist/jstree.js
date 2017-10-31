@@ -3116,6 +3116,8 @@
 			if(o && o.length) { this.dehover_node(o); }
 
 			obj.children('.jstree-anchor').addClass('jstree-hovered');
+			//var title = '<table dir="rtl"  border="1" style="border-collapse: collapse;"><tr><th>מוקד</th><th>שם מוקד</th></tr><tr><td>1</td><td>שירות גמל</td></tr><tr><td>2</td><td>שימור גמל</td></tr><tr><td>3</td><td>שיווק פרט</td></tr><tr><td>4</td><td>שירות פנסיה</td></tr><tr><td>5</td><td>שימור פנסיה</td></tr></table>'
+		    //$("#" + obj[0].id).prop('title', title);
 			/**
 			 * triggered when an node is hovered
 			 * @event
@@ -3186,9 +3188,14 @@
 				 * @param {Object} event the event (if any) that triggered this select_node
 				 */
 				this.trigger('select_node', { 'node' : obj, 'selected' : this._data.core.selected, 'event' : e });
-                var selectedNode = $get("selectedNode").value;
+				var selectedNode = $get("commonCtl_selectedNode").value;
 		        if (typeof (obj) == "object" && obj.id != selectedNode && selectedNode != '')
 		            checkClearSelectionNode(this.element[0].id, obj.id, this.get_node(selectedNode).type); //this.element[0].id == tree.ID
+		        var selectedDataNode = $get("commonCtl_selectedDataNode").value;
+		        if (typeof (obj) == "object" && obj.id != selectedDataNode && selectedDataNode != '' && $get("divExtraData")) {
+		            $get("divExtraData").style.display = 'none';
+		            $get("divExtraData").innerHTML = '';
+		        }
 				if(!supress_event) {
 					/**
 					 * triggered when selection changes
@@ -4248,7 +4255,7 @@
 			        node.a_attr.id = newNodeID + '_anchor';
                     node.li_attr.id = newNodeID;
 			    }
-			    if (old_par == "#" && ("team,dep".indexOf(node.type) <0)) { //Copy From Other Tree
+			    if (old_par == "#" && ("team,dep,center".indexOf(node.type) <0)) { //Copy From Other Tree
 			        var newNodeID = node.id +parentExt;
 			        node.id = newNodeID;
 			        node.a_attr.id = newNodeID + '_anchor';
@@ -4548,7 +4555,7 @@
 		    this._model.data[id].a_attr['class'] = "nodeChanged";
 		    if ($get(id+"_anchor"))
 		        $get(id + "_anchor").classList.add("nodeChanged");
-            $get("treeDataChanged").value="1";
+		    $get("commonCtl_treeDataChanged").value = "1";
 	},
 	    /**
             * changes css class of Node that changed
@@ -6037,6 +6044,21 @@
 
 				    }
 				},
+				"extraData": {
+				    "separator_before": false,
+				    "separator_after": false,
+				    "_disabled": function (data) {
+				        return checkContextMenuAvailabilty(data, "extraData");
+				    }, //(this.check("rename_node", data.reference, this.get_parent(data.reference), "")),
+				    "label": "מידע נוסף",
+				    "action": function (data) {
+				        var inst = $.jstree.reference(data.reference),
+							obj = inst.get_node(data.reference);
+				        setExtraDataDiv(obj);
+				        //inst.edit(obj);
+
+				    }
+				},
 				"remove_center" : {
 				    "separator_before"	: false,
 				    "icon"				: false,
@@ -6051,7 +6073,7 @@
 				        var inst = $.jstree.reference(data.reference),
 							obj = inst.get_node(data.reference);
 				        var loop = 0;
-				        if (($.jstree.parentsTypes.toString().indexOf(obj.type) < 0) && obj.type != 'team')
+				        if (($.jstree.parentsTypes.toString().indexOf(obj.type) < 0) && obj.type == 'preserve')
                             loop = 1;
 				       setRemovedNodes(inst, obj,loop);
 				    }
@@ -6228,7 +6250,12 @@
 		 */
 		this.show_contextmenu = function (obj, x, y, e) {
 			obj = this.get_node(obj);
-			if(!obj || obj.id === $.jstree.root) { return false; }
+			if (!obj || obj.id === $.jstree.root) { return false; }
+			var selectedDataNode = $get("commonCtl_selectedDataNode").value;
+			if (typeof (obj) == "object" && obj.id != selectedDataNode && selectedDataNode != '' && $get("divExtraData")) {
+			    $get("divExtraData").style.display = 'none';
+			    $get("divExtraData").innerHTML = '';
+			}
 			var s = this.settings.contextmenu,
 				d = this.get_node(obj, true),
 				a = d.children(".jstree-anchor"),
@@ -8466,7 +8493,7 @@
 						this.get_node(data.node, true).find('.jstree-clicked').parent().children('.jstree-wholerow').addClass('jstree-wholerow-clicked');
 					}, this))
 				.on("hover_node.jstree dehover_node.jstree", $.proxy(function (e, data) {
-						if(e.type === "hover_node" && this.is_disabled(data.node)) { return; }
+				    if (e.type === "hover_node" && this.is_disabled(data.node)) { return; }
 						this.get_node(data.node, true).children('.jstree-wholerow')[e.type === "hover_node"?"addClass":"removeClass"]('jstree-wholerow-hovered');
 					}, this))
 				.on("contextmenu.jstree", ".jstree-wholerow", $.proxy(function (e) {

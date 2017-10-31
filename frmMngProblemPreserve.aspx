@@ -1,6 +1,7 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="frmMngProblemPreserve.aspx.cs" Inherits="frmMngProblemPreserve" %>
 <%@ Register TagPrefix="bnft" TagName="Header" Src="Header.ascx" %>
 <%@ Register TagPrefix="bnft" TagName="HeaderImports" Src="HeaderImports.ascx" %>
+<%@ Register TagPrefix="bnft" TagName="CommonFields" Src="commonFields.ascx" %>
 <!DOCTYPE html>
 <html dir="rtl">
 <head>
@@ -44,7 +45,9 @@
                <asp:Label CssClass="lbl" runat="server" ID="lblTargetEnv" Text="סביבת יעד:" />
             </td>
             <td>
-                <asp:DropDownList runat="server" CssClass="fldTable" ID="fldTargetEnv"></asp:DropDownList>
+                <%--<asp:DropDownList runat="server" CssClass="fldTable" ID="fldTargetEnv"></asp:DropDownList>--%>
+                  <asp:CheckBoxList ID="fldTargetEnv" runat="server">
+                </asp:CheckBoxList>
             </td> 
             <td>
                <asp:Button ID="btnSaveTree" CssClass="btnH" UseSubmitBehavior="false" runat="server" Text="שמור שינויים" OnClientClick="return saveTreeData('#centerProblemPreserveTree');" />
@@ -200,18 +203,9 @@
         <asp:TextBox runat="server" ID="fldSearchValues" TextMode="Search"></asp:TextBox>
    </div>
     <div runat="server" class="myTreeLocation" id="otherValuesTree"></div>
-    <asp:HiddenField runat="server" ID="selectedNode" />
-    <asp:HiddenField runat="server" ID="nodeDataChanged" Value="0" />
-    <asp:HiddenField runat="server" ID="treeDataChanged" Value="0" />
+  
    </div>
-    <div id="ctlDialog" title="הודעת מערכת" style="display:none">
-      <table>
-          <tr>
-         <%--     <td><span id="dialogIcon" class="ui-icon"></span></td>--%>
-              <td><asp:Label runat="server" CssClass="dialogText" ID="dialogText"></asp:Label> </td>
-          </tr>
-     </table>
-</div>
+   <bnft:CommonFields runat="server" ID="commonCtl" />
     </div>
     </form>
 </body>

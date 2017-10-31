@@ -12,7 +12,7 @@ public partial class frmMngTeams : GlobalPage
        
         LoadEnvironments(fldTargetEnv);
         LoadEnvironments(fldSourceEnv);
-        LoadCenters(fldSrchCenterID);
+        LoadDepartments(fldSrchDepartmentID);
         loadTorTypes(fldTeamTorType);
     }
 

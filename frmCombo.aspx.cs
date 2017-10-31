@@ -15,7 +15,8 @@ public partial class frmCombo : GlobalPage
             string comboName = Request.Form["combo"];
             if (comboName == "fldSrchCenterID")
                 LoadCenters(combo);
-
+            if (comboName == "fldSrchDepartmentID")
+                LoadDepartments(combo);
             combo.ID = Request.Form["combo"];
         }
         //Response.Write(combo.Items);

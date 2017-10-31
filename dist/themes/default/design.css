@@ -60,6 +60,7 @@
 .content-fields{
 	WIDTH: 100%;
 	PADDING-BOTTOM: 0.25em; 
+    padding-right: 0.5em;
 	/*MARGIN: 0 auto 14px;*/ 
 	BORDER: #dfdfdf 4px solid;
 }

@@ -37,7 +37,6 @@ public partial class GlobalPage : System.Web.UI.Page
         }
         return environment == "Local" ? "PreProdStatus" : "ws01_t_Status";
     }
-
     string environmentValue()
     {
         string sourceEnv = "1";
@@ -54,7 +53,6 @@ public partial class GlobalPage : System.Web.UI.Page
         }
         return sourceEnv;
     }
-   
     public void LoadCenters(DropDownList ctl)
     {
         using (SqlConnection con = new SqlConnection(connectionString))
@@ -62,12 +60,14 @@ public partial class GlobalPage : System.Web.UI.Page
             try
             {
                 DataTable centers = new DataTable();
-                using (var cmd = new SqlCommand("BenefitMng.dbo.usp_Mng_getCenters", con))
+                using (var cmd = new SqlCommand("BenefitMng.dbo.usp_Mng_getComboValues", con))
                 using (var da = new SqlDataAdapter(cmd))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     string sourceEnv = environmentValue();
                     SqlParameter p = new SqlParameter("@fldSourceEnv", sourceEnv);
+                    cmd.Parameters.Add(p);
+                    p = new SqlParameter("@fldComboValues", "Centers");
                     cmd.Parameters.Add(p);
                     da.Fill(centers);
                 }
@@ -84,12 +84,53 @@ public partial class GlobalPage : System.Web.UI.Page
             }
         }
     }
+    public void LoadDepartments(DropDownList ctl)
+    {
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+            try
+            {
+                DataTable deps = new DataTable();
+                using (var cmd = new SqlCommand("BenefitMng.dbo.usp_Mng_getComboValues", con))
+                using (var da = new SqlDataAdapter(cmd))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    string sourceEnv = environmentValue();
+                    SqlParameter p = new SqlParameter("@fldSourceEnv", sourceEnv);
+                    cmd.Parameters.Add(p);
+                    p = new SqlParameter("@fldComboValues", "Deps");
+                    cmd.Parameters.Add(p);
+                    da.Fill(deps);
+                }
+
+                ctl.DataSource = deps;
+                ctl.DataTextField = "fldDepartment";
+                ctl.DataValueField = "fldDepartmentID";
+                ctl.DataBind();
+                ctl.Items.Insert(0, new ListItem("", "0"));
+            }
+            catch (Exception ex)
+            {
+                // Handle the error
+            }
+        }
+    }
     public void LoadEnvironments(DropDownList ctl)
     {
         //ctl.Items.Insert((0, new ListItem("", "0"));
         ctl.Items.Insert(0, new ListItem("טסט", "1"));
         ctl.Items.Insert(1, new ListItem("פרה-פרוד", "2"));
         ctl.Items.Insert(2, new ListItem("ייצור", "3"));
+    }
+    public void LoadEnvironments(CheckBoxList ctl)
+    {
+        //ctl.Items.Insert((0, new ListItem("", "0"));
+        ctl.Items.Insert(0, new ListItem("טסט", "1"));
+        ctl.Items[0].Attributes["class"] = "lbl";
+        ctl.Items.Insert(1, new ListItem("פרה-פרוד", "2"));
+        ctl.Items[1].Attributes["class"] = "lbl";
+        ctl.Items.Insert(2, new ListItem("ייצור", "3"));
+        ctl.Items[2].Attributes["class"] = "lbl";
     }
     public void loadExcelTypes(DropDownList ctl)
     {
@@ -158,7 +199,7 @@ public partial class GlobalPage : System.Web.UI.Page
                 string flag = environmentFlag(sourceEnv);
                 string tableID = "21";
                 string query = "select fldValueID,fldValueDesc from BenefitMng.dbo.Mng_tblTables ";
-                string where = "where fldValueID>0 and fldTableID = " + tableID + " and " + flag + " = 'D' ";
+                string where = "where fldValueID>0 and fldTableID = " + tableID + " and " + flag + " = 'D' order by fldValueDesc ";
                 query = query + where;
                 con.Open();
                 using (var cmd = new SqlCommand(query, con))

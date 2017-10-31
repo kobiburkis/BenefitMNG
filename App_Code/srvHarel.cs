@@ -56,17 +56,36 @@ public class srvHarel : System.Web.Services.WebService
         }
 
     }
-
+    [WebMethod(EnableSession = true)]
+    public string getNodeExtraData(string fldNode, string fldSourceEnv, string fldNodeText)
+    {
+        DataSet ds = new DataSet();
+        try
+        {
+            ds = execSP(ds, "data", "BenefitMng.dbo.usp_Mng_getNodeExtraData",
+                new SqlParameter("@fldSourceEnv", fldSourceEnv),
+                new SqlParameter("@fldNodeText", fldNodeText),
+                new SqlParameter("@fldNode", fldNode)
+                );
+            return Newtonsoft.Json.JsonConvert.SerializeObject(ds, Newtonsoft.Json.Formatting.Indented);
+        }
+        catch (Exception ex)
+        {
+            //log(ex, null);
+            return Newtonsoft.Json.JsonConvert.SerializeObject(ds, Newtonsoft.Json.Formatting.Indented);
+        }
+    }
     #region DepartmentsTeams
     [WebMethod(EnableSession = true)]
-    public string departmentsData(string fldCenterID, string fldSourceEnv, int fldOtherTeams)
+    public string departmentsData(string fldDepartmentID, string fldSourceEnv, string fldScreenMode, int fldOtherTeams)
     {
         DataSet ds = new DataSet();
         try
         {
             ds = execSP(ds, "data", "BenefitMng.dbo.usp_Mng_getDepartmentDetails",
-                new SqlParameter("@fldCenterID", fldCenterID),
+                new SqlParameter("@fldDepartmentID", fldDepartmentID),
                 new SqlParameter("@fldSourceEnv", fldSourceEnv),
+                new SqlParameter("@fldScreenMode", fldScreenMode),
                 new SqlParameter("@fldOtherTeams", fldOtherTeams)
                 );
             return Newtonsoft.Json.JsonConvert.SerializeObject(ds, Newtonsoft.Json.Formatting.Indented);
@@ -78,7 +97,7 @@ public class srvHarel : System.Web.Services.WebService
         }
     }
     [WebMethod(EnableSession = true)]
-    public string updateDeprTeamTree(int fldCenterID, int fldTargetEnv, string fldMngNote, string doc)
+    public string updateDeprTeamTree(int fldDepartmentID, string fldScreenMode, string fldTargetEnv, string fldMngNote, string doc)
     {
         DataSet ds = new DataSet();
         DataTable dt = (DataTable)JsonConvert.DeserializeObject(doc, (typeof(DataTable)));
@@ -87,7 +106,8 @@ public class srvHarel : System.Web.Services.WebService
         try
         {
             ds = execSP(ds, "data", "BenefitMng.dbo.usp_Mng_saveDepartmentsTeamsTree",
-                new SqlParameter("@fldCenterID", fldCenterID),
+                new SqlParameter("@fldDepartmentID", fldDepartmentID),
+                new SqlParameter("@fldScreenMode", fldScreenMode),
                 new SqlParameter("@fldTargetEnv", fldTargetEnv),
                 new SqlParameter("@fldMngNote", fldMngNote),
                 DataTblParam
@@ -123,7 +143,7 @@ public class srvHarel : System.Web.Services.WebService
         }
     }
     [WebMethod(EnableSession = true)]
-    public string updateProblemPreserveTree(int fldCenterID, int fldTargetEnv, string fldMngNote, string doc)
+    public string updateProblemPreserveTree(int fldCenterID, string fldTargetEnv, string fldMngNote, string doc)
     {
         DataSet ds = new DataSet();
         DataTable dt = (DataTable)JsonConvert.DeserializeObject(doc, (typeof(DataTable)));

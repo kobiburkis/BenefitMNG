@@ -44,7 +44,7 @@ function btnConfiguration(btnType, btnYFunc, btnNFunc) {
     return btnConfig;
 }
 function openMsg(text, btnType, btnYFunc, btnNFunc) {
-    $get("dialogText").innerText = text;
+    $get("commonCtl_dialogText").innerText = text;
     //$("#dialogIcon").addClass('ui-icon-alert');
     $("#ctlDialog").dialog({
         resizable: false,
@@ -63,24 +63,36 @@ function openMsg(text, btnType, btnYFunc, btnNFunc) {
     $('#ctlDialog').dialog('option', 'buttons', btnConfiguration(btnType, btnYFunc, btnNFunc));
 }
 function savePreValues() {
-    $("#fldSrchCenterID").data('pre', $("#fldSrchCenterID").val());
     $("#fldSourceEnv").data('pre', $("#fldSourceEnv").val());
-    //if ($('#rblCenterTree')[0]) {
-    //    var checked = $('input[type=radio]:checked', '#rblCenterTree')[0].id;
-    //    $("#rblCenterTree").data('pre', checked);
-    //}
+    if ($("#fldSrchCenterID")[0])
+        $("#fldSrchCenterID").data('pre', $("#fldSrchCenterID").val());
+    if ($("#fldSrchDepartmentID")[0])
+        $("#fldSrchDepartmentID").data('pre', $("#fldSrchDepartmentID").val());
+    
+    if ($('#rblScreenMode')[0]) {
+        var checked = $('input[type=radio]:checked', '#rblScreenMode')[0].id;
+        $("#rblScreenMode").data('pre', checked);
+    }
 
 
 }
 function setPreValues() {
-    var before_change = $("#fldSrchCenterID").data('pre');
-    $get("fldSrchCenterID").value = before_change;
+    var before_change;
     before_change = $("#fldSourceEnv").data('pre');
     $get("fldSourceEnv").value = before_change;
-    //if ($('#rblCenterTree')[0]) {
-    //    before_change = $("#rblCenterTree").data('pre');
-    //    $("#" + before_change).prop("checked", true)
-    //}
+    if ($("#fldSrchCenterID")[0]) {
+        before_change = $("#fldSrchCenterID").data('pre');
+        $get("fldSrchCenterID").value = before_change;
+    }
+    if ($("#fldSrchDepartmentID")[0]) {
+        before_change = $("#fldSrchDepartmentID").data('pre');
+        $get("fldSrchDepartmentID").value = before_change;
+    }
+    
+    if ($('#rblScreenMode')[0]) {
+        before_change = $("#rblScreenMode").data('pre');
+        $("#" + before_change).prop("checked", true)
+    }
 
 }
 function setDisplayedNodes(inst, obj, loop) {
@@ -133,7 +145,7 @@ function setDisplayedNode(inst, obj) {
     }
 }
 function setRemovedNodes(inst, obj, loop) {
-    $get("treeDataChanged").value = "1";
+    $get("commonCtl_treeDataChanged").value = "1";
     if (loop == 0)
         setRemovedNode(inst, obj);
     else { //loop through tree foor objID instances
@@ -185,13 +197,13 @@ function getChangeNodeMsg(treeID, objID, objType) {
     }
 }
 function checkClearSelectionNode(treeID, objID, objType) {
-    if ($get("nodeDataChanged").value == "1") {
+    if ($get("commonCtl_nodeDataChanged").value == "1") {
         var funcAfterYes = "clearSelectedNode('" + treeID + "','" + objID + "')";
         var funcAfterNo = "backToSelectedNode('" + treeID + "','" + objID + "')";
         var msg = getChangeNodeMsg(treeID, objID, objType);
         openMsg(msg, 2, funcAfterYes, funcAfterNo);
     }
-    else if ($get("nodeDataChanged").value == "2") {
+    else if ($get("commonCtl_nodeDataChanged").value == "2") {
         if (!(checkExtraFieldsMust() && ((typeof checkSpecialExtraFields == 'undefined') || (typeof checkSpecialExtraFields != 'undefined' && checkSpecialExtraFields()))))
             backToSelectedNode(treeID,objID);
         else
@@ -204,7 +216,7 @@ function backToSelectedNode(treeID,objID)
 {
     objID = objID.replace("_anchor", "");
     if (treeID.indexOf("other") < 0) { ///if select is on other tree - no action needed
-        var selectedNode = $get("selectedNode").value;
+        var selectedNode = $get("commonCtl_selectedNode").value;
         var selector = $("#" + treeID)[0];
         //if ($(selector).jstree("get_selected", true).length>0)
         //   $("#" + treeID).jstree("deselect_node", $(selector).jstree("get_selected", true)[0]).trigger("deselect_node.jstree");
@@ -215,8 +227,8 @@ function backToSelectedNode(treeID,objID)
     return false;
 }
 function clearSelectedNode(treeID, objID) {
-    $get("nodeDataChanged").value = "0";
-    $get("selectedNode").value = "";
+    $get("commonCtl_nodeDataChanged").value = "0";
+    $get("commonCtl_selectedNode").value = "";
     $get("ExtraFields").style.display = "none";
     if (treeID == 'centerTeamTree')
         clearTeamNode();
@@ -264,7 +276,7 @@ function getJsonTreeData(data, treeLevel, RootLevelType, InLevelType) {
     }
     return json_data;
 }
-function show_tree(treeID, json_data, types, search, dnd, plugins) {
+function show_tree(treeID, json_data, types, search, dnd, plugins,openAll) {
     try {
         treeID = "#" + treeID;
         $(treeID).jstree("destroy");
@@ -307,6 +319,10 @@ function show_tree(treeID, json_data, types, search, dnd, plugins) {
                 "plugins": plugins,
                 'dnd': dnd
             });
+            if (openAll)
+                $(treeID).on('ready.jstree', function () {
+                    $(treeID).jstree("open_all");
+                });
         }
     }
     catch (e) {
@@ -314,6 +330,16 @@ function show_tree(treeID, json_data, types, search, dnd, plugins) {
         top.status = "Error In show_tree:" + e.message.toString();
     }
 }
+function getTargetEnv() {
+    var targetEnv = '';
+    $("#fldTargetEnv input[type=checkbox]:checked").each(function () {
+        var currentValue = $(this).val();
+        if (currentValue != '')
+            targetEnv += currentValue + ",";
+    });
+    return targetEnv;
+}
+
 function checkMngMustFields()
 {
     if ($get("fldMngNote").value == '') {
@@ -321,14 +347,19 @@ function checkMngMustFields()
         openMsg('חובה להזין הערה ל- MNG', 1)
         return false;
     }
-    if ($get("fldTargetEnv").value == '0') {
+    var targetEnv = getTargetEnv();
+    if (targetEnv == '') {
         $get("fldMngNote").style.backgroundColor = '';
-        $get("fldTargetEnv").style.backgroundColor = 'red';
+        $get("fldTargetEnv").style.border = 'solid 2px red';
         openMsg('חובה לבחור סביבת MNG', 1)
         return false;
     }
-    $get("fldTargetEnv").style.backgroundColor = '';
+    $get("fldTargetEnv").style.border = '';
     $get("fldMngNote").style.backgroundColor = '';
+    if ($get("commonCtl_treeDataChanged").value == "0") {
+        openMsg('לא בוצעו שינויים לשמירה', 1)
+        return false;
+    }
     return true;
 }
 function getDataForSaveTree(treeID)
@@ -347,7 +378,7 @@ function getDataForSaveTree(treeID)
 }
 function saveNodeData(treeID) {
     var obj = $(treeID).jstree("get_selected", true);
-    if ($get("nodeDataChanged").value == "1") {
+    if ($get("commonCtl_nodeDataChanged").value == "1") {
         if (checkExtraFieldsMust() && ((typeof checkSpecialExtraFields == 'undefined') || (typeof checkSpecialExtraFields != 'undefined' && checkSpecialExtraFields()))) {
             var obj = $(treeID).jstree("get_selected", true);
             //Example: var newData = '{"fldSekerID":"1","fldTeamTorType":"2"}';
@@ -391,7 +422,7 @@ function propogateNodeData(treeID,objId,data)
     }
 }
 function dataChanged(change) {
-    $get("nodeDataChanged").value = change;
+    $get("commonCtl_nodeDataChanged").value = change;
 }
 function getJsonDataFromFields(fieldSetID) {
     var data = bnft_getJSON($get(fieldSetID));
@@ -402,7 +433,7 @@ function setJsonDataToFields(obj,fromNew,treeID) {
     var jsonData = obj.data;
     var fields = JSON.parse(jsonData);
     if (obj.type != "dep") {
-        $get("selectedNode").value = obj.id;
+        $get("commonCtl_selectedNode").value = obj.id;
         $get("ExtraFields").style.display = "";
         $get("lblExtraDetailsSpec").innerText = obj.text;
         if ("team,dep".indexOf(obj.type) < 0)
@@ -430,7 +461,29 @@ function setJsonDataToFields(obj,fromNew,treeID) {
                 }
         }
     }
-  }
+}
+function setExtraDataDiv(obj) {
+    $get("commonCtl_selectedDataNode").value = obj.id;
+    var srch = '';
+    srch = getFldJSONsrch(srch, 'fldSourceEnv', $get("fldSourceEnv").value, 'string');
+    srch = getFldJSONsrch(srch, 'fldNode', obj.id, 'string');
+    srch = getFldJSONsrch(srch, 'fldNodeText', obj.text, 'string');
+    var data = getJQAJAX("srvHarel.asmx/getNodeExtraData", '{' + srch + '}', false, 1);
+    if (data && data.data && data.data.length == 1) {
+        var html = data.data[0].fldHTML;
+        if (html != '')
+        {
+            $get("divExtraData").style.display = '';
+            $get("divExtraData").innerHTML = html;
+        }
+        else
+        {
+            $get("divExtraData").style.display = 'none';
+            $get("divExtraData").innerHTML = '';
+        }
+    }
+}
+
 
 function bnft_pressNum() {
     try {
@@ -446,7 +499,6 @@ function bnft_pressNum() {
 }
 function bnft_isNum(key) { return (key >= bnft_code('0') && key <= bnft_code('9')); }
 function bnft_code(ch) { return ch.charCodeAt(0); }
-
 function bnft_getFldJSON(sFld, sVal) {
     if (sVal.toString().length == 0)
         return '';
@@ -538,18 +590,18 @@ function checkContextMenuAvailabilty(data, action) {
 	obj = inst.get_node(data.reference);
     var objType = obj.type;
 
-    var selectedNode = $get("selectedNode").value;
+    var selectedNode = $get("commonCtl_selectedNode").value;
     if (selectedNode != '')
         return true;
-
-    //var treeType = 'Center';
-    //if ($('#rblCenterTree')[0]) {
-    //    var checked = $('input[type=radio]:checked', '#rblCenterTree').val();
-    //    if (checked == "MainTree")
-    //        treeType = 'Main';
-    //}
-    //if (treeType == 'Main' && action == "remove_center")
-    //    return true;
+    if ($('#rblScreenMode')[0]) {
+        var checked = $('input[type=radio]:checked', '#rblScreenMode').val();
+        if (checked == "DeprCenterMode" && "dep" == objType)
+            return true;
+        if (checked == "DeprTeamMode" && "dep" == objType && action == "remove_center")
+            return true;
+    }
+    if ("center" == objType && action != "remove_center")
+        return true;
     if (("team,preserve".indexOf(objType)>-1) && (action == "create" || action == "create_root" || action == "remove_center"))
         return true;
     if (("preserve" == objType) && (action == "create" || action == "create_root"))
@@ -557,6 +609,8 @@ function checkContextMenuAvailabilty(data, action) {
     if (("problem" == objType) && (action == "remove_center"))
         return true;
     if ((objType == "dep") && (action == "editData"))
+        return true;
+    if (("dep".indexOf(objType) < 0) && (action == "extraData"))
         return true;
     return false;
 }
@@ -572,7 +626,7 @@ function getContextMenuLabel(data, action) {
         return "צור הליך חדש";
     if (("problem,preserve".indexOf(objType) > -1) && (action == "create_root"))
         return "צור מקור חדש";
-    if (("dep,team,problem,preserve".indexOf(objType) > -1) && (action == "remove_center"))
+    if (("dep,team,problem,preserve,center".indexOf(objType) > -1) && (action == "remove_center"))
     {
         if (obj.data && obj.data.toString().indexOf("fldRemove") > -1)
             return "החזר קישור למוקד";
@@ -604,6 +658,13 @@ function reloadCenterCombo() {
         var srch = 'fldSourceEnv=';
         srch = srch + $get("fldSourceEnv").value;
         reloadCombo("frmMngTeams", "fldSrchCenterID", srch);
+    }
+}
+function reloadDepatmentCombo() {
+    if ($get("fldSourceEnv").value != '') {
+        var srch = 'fldSourceEnv=';
+        srch = srch + $get("fldSourceEnv").value;
+        reloadCombo("frmMngTeams", "fldSrchDepartmentID", srch);
     }
 }
 function reloadCombo(sFrm, sCombo, sFilter, sPrefix, sToCombo) {
@@ -660,7 +721,7 @@ function getXMLAJAX(sUrl, sSrch, bAsync, returnJson) {
 }
 function menuChangePage(url)
 {
-    if ($get("treeDataChanged") && $get("treeDataChanged").value == "1")
+    if ($get("commonCtl_treeDataChanged") && $get("commonCtl_treeDataChanged").value == "1")
         openMsg('בוצעו שינויים בדף - האם לצאת ללא שמירה ?', 2, 'menuMoveToPage("'+url+'")');
     else 
         menuMoveToPage(url)
