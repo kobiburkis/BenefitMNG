@@ -3757,7 +3757,8 @@
 			    node = $.extend(true, {}, node);
 			    var nodeText = getNewNodeText(node.type);
 			    node.text = this.get_string(nodeText);
-			    node.data = ['{}'];
+                if (!node.data)
+			      node.data = ['{}'];
 			}
 			if(node.text === undefined) { node.text = this.get_string('New node'); }
 			var tmp, dpc, i, j;
@@ -6010,6 +6011,29 @@
 							}
 						});
 					}
+				},
+				"duplicate": {
+				    "separator_before": false,
+				    "separator_after": false,
+				    "_disabled": function (data) {
+				        return checkContextMenuAvailabilty(data, "duplicate");
+				    },
+				    "label": function (data) {
+				        return getContextMenuLabel(data, "duplicate");
+				    },
+				    "action": function (data) {
+				        var inst = $.jstree.reference(data.reference),
+							obj = inst.get_node(data.reference);
+				        var nodeType = obj.type;
+                        var nodeData = obj.data
+				        inst.create_node(obj, { type: nodeType , data: nodeData }, "after", function (new_node) {
+				            try {
+				                inst.edit(new_node);
+				            } catch (ex) {
+				                setTimeout(function () { inst.edit(new_node); }, 0);
+				            }
+				        });
+				    }
 				},
 				"rename" : {
 					"separator_before"	: false,

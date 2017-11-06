@@ -339,7 +339,6 @@ function getTargetEnv() {
     });
     return targetEnv;
 }
-
 function checkMngMustFields()
 {
     if ($get("fldMngNote").value == '') {
@@ -378,7 +377,7 @@ function getDataForSaveTree(treeID)
 }
 function saveNodeData(treeID) {
     var obj = $(treeID).jstree("get_selected", true);
-    if ($get("commonCtl_nodeDataChanged").value == "1") {
+    if ($get("commonCtl_nodeDataChanged").value != "0") {
         if (checkExtraFieldsMust() && ((typeof checkSpecialExtraFields == 'undefined') || (typeof checkSpecialExtraFields != 'undefined' && checkSpecialExtraFields()))) {
             var obj = $(treeID).jstree("get_selected", true);
             //Example: var newData = '{"fldSekerID":"1","fldTeamTorType":"2"}';
@@ -438,6 +437,23 @@ function setJsonDataToFields(obj,fromNew,treeID) {
         $get("lblExtraDetailsSpec").innerText = obj.text;
         if ("team,dep".indexOf(obj.type) < 0)
             dispEditFields(obj.type);  //Every Frm Must have this function
+        if ($get("trID") && $get("trID").style.display == "")//fieldID
+        {
+            if (obj.id.search(/j\d/i) > -1)
+            {
+                $get("fldFieldID").disabled = false;
+            }
+            else
+            {
+                var fieldID;
+                if ((obj.id.indexOf('*') > 0))
+                    fieldID = obj.id.substr(obj.id.indexOf('_') + 1, obj.id.indexOf('*') - obj.id.indexOf('_') - 1);
+                else
+                    fieldID = obj.id.substr(obj.id.indexOf('_')+1,obj.id.length-1);
+                $get("fldFieldID").value = fieldID;
+                $get("fldFieldID").disabled = true;
+            }
+        }
     }
     if (fromNew == 1) {
         dataChanged(2);
@@ -610,7 +626,9 @@ function checkContextMenuAvailabilty(data, action) {
         return true;
     if ((objType == "dep") && (action == "editData"))
         return true;
-    if (("dep".indexOf(objType) < 0) && (action == "extraData"))
+    if (("dep,problem,preserve,".indexOf(objType) < 0) && (action == "extraData"))
+        return true;
+    if (("dep,team,".indexOf(objType) > -1) && (action == "duplicate"))
         return true;
     return false;
 }
@@ -633,6 +651,8 @@ function getContextMenuLabel(data, action) {
         else
             return "מחק קישור למוקד";
     }
+    if (action == "duplicate")
+        return "שכפל";
     return "חדש";
 }
 function getNewNodeText(type) {

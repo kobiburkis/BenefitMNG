@@ -6,7 +6,7 @@
 <html dir="rtl">
 <head>
   <meta charset="utf-8">
-  <title>דף ניהול צוותים</title>
+  <title>דף ניהול מחלקות/צוותים</title>
   <bnft:HeaderImports runat="server" />
   <script type="text/javascript" src="dist/jsMngTeams.js"></script>
 

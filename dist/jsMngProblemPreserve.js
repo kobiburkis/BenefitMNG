@@ -7,7 +7,7 @@ var otherTreeSearch = { 'case_insensitive': true, 'show_only_matches': true };
 var centerTreeDND = { 'always_copy': true };
 var otherTreeDND = { 'always_copy': true };
 function onLoad() {
-    addIntegerHandler("fldDaysDiff,fldSLA,fldSLA2,fldCMIndication,fldCMActionCode,fldDoctorEmplDepartmentIDs,fldDoctorEmplDepartmentIDs2");
+    addIntegerHandler("fldDaysDiff,fldSLA,fldSLA2,fldCMIndication,fldCMActionCode,fldDoctorEmplDepartmentIDs,fldDoctorEmplDepartmentIDs2,fldFieldID");
     addMustClass("fldPreserveTigmulID,fldPreserveTypeMrkzID");
 }
 function getProblemPreserveData(centerID, sourceEnv, other) {
@@ -54,8 +54,9 @@ function saveTreeData(treeID) {
         //if ($get('trSrchCenter').style.display == "none")
         //    srch = getFldJSONsrch(srch, 'fldCenterID', "0", 'int');
         //else
+        var targetEnv = getTargetEnv();
         srch = getFldJSONsrch(srch, 'fldCenterID', $get("fldSrchCenterID").value, 'int');
-        srch = getFldJSONsrch(srch, 'fldTargetEnv', $get("fldTargetEnv").value, 'string');
+        srch = getFldJSONsrch(srch, 'fldTargetEnv', targetEnv, 'string');
         srch = getFldJSONsrch(srch, 'fldMngNote', $get("fldMngNote").value, 'string');
         var newData = getDataForSaveTree(treeID);
         srch = getFldJSONsrch(srch, 'doc', newData, 'string');
@@ -138,20 +139,14 @@ function clearProblemPreserveTrees() {
     $('#OtherValuesSearch')[0].style.display = "none";
 }
 function dispEditFields(type) {
+    $get("trID").style.display = "";
+    $get("trDisplayAdd").style.display = "";
     if (type == "problem")
-    {
-        $get("trDisplayAdd").style.display = "";
         dispPreserveFields("none", "none");
-    }
     else
-    {
-        $get("trDisplayAdd").style.display = "";
-        //var checked = $('input[type=radio]:checked', '#rblCenterTree').val();
-        //var dispCenterFields = checked == "MainTree" ? "none" : "";
         dispPreserveFields("", "");
-    }
 }
-function dispPreserveFields(disp,dispCenterFields) {
+function dispPreserveFields(disp, dispCenterFields) {
     $get("trPreserveTypeMrkzID").style.display = disp;
     $get("trPreserveTigmulID").style.display = disp;
     $get("trDaysDiff").style.display = disp;
@@ -166,6 +161,7 @@ function dispPreserveFields(disp,dispCenterFields) {
 }
 function clearPreserveProblemNode()
 {
+    $get("fldFieldID").value = "";
     $get("fldPreserveTigmulID").value = "";
     $get("fldPreserveTypeMrkzID").value = "";
     $get("fldDisplayAdd").checked = false;

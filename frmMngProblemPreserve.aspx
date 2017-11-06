@@ -82,7 +82,15 @@
                                             <asp:Label CssClass="lbl" Width="125px" runat="server" ID="lblExtraDetails" Text="הגדרות נוספות:"  />
                                             <asp:Label CssClass="lblTitle" runat="server" ID="lblExtraDetailsSpec" />
                                         </td>
-                                    </tr>                 
+                                    </tr>          
+                                     <tr runat="server" id="trID" style="display:none">
+                                        <td style="width:125px;" >
+                                           <asp:Label CssClass="lbl" runat="server" ID="lblFieldID" Text="מספר : " />
+                                        </td>
+                                        <td>
+                                           <asp:TextBox CssClass="fldTable" runat="server" ID="fldFieldID" onChange="dataChanged(1);" ></asp:TextBox>
+                                        </td>
+                                    </tr>       
                                      <tr runat="server" id="trPreserveTypeMrkzID" style="display:none">
                                         <td style="width:125px;" >
                                            <asp:Label CssClass="lbl" runat="server" ID="lblPreserveTypeMrkzID" Text="הליך מרכז : " />
@@ -192,6 +200,10 @@
                     </tr>
                 </table>
             </td>
+            <%-- Extra Data Div --%>
+           <td style="width: 300px;position: absolute;padding-right: 500px;">
+            <div runat="server"  class="content-fields" id="divExtraData" style="display:none"></div>
+         </td>      
        </tr>
    </table>
    <div runat="server" id="OtherValuesSearch" class="myTreeLocation" style="display:none">
