@@ -229,7 +229,8 @@ function backToSelectedNode(treeID,objID)
 function clearSelectedNode(treeID, objID) {
     $get("commonCtl_nodeDataChanged").value = "0";
     $get("commonCtl_selectedNode").value = "";
-    $get("ExtraFields").style.display = "none";
+    if ($get("ExtraFields"))
+        $get("ExtraFields").style.display = "none";
     if (treeID == 'centerTeamTree')
         clearTeamNode();
     if (treeID == 'centerProblemPreserveTree')
@@ -626,7 +627,7 @@ function checkContextMenuAvailabilty(data, action) {
         return true;
     if ((objType == "dep") && (action == "editData"))
         return true;
-    if (("dep,problem,preserve,".indexOf(objType) < 0) && (action == "extraData"))
+    if (("dep,problem,preserve".indexOf(objType) < 0) && (action == "extraData"))
         return true;
     if (("dep,team,".indexOf(objType) > -1) && (action == "duplicate"))
         return true;

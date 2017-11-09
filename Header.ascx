@@ -12,6 +12,7 @@
                         <ul class="submenu">
                             <li><a href="javascript:menuChangePage('frmMngTeams.aspx');">ניהול מחלקות וצוותים</a></li>
                             <li><a href="javascript:menuChangePage('frmMngProblemPreserve.aspx');">עידכון מקור והליך</a></li>
+                            <li><a href="javascript:menuChangePage('frmMngFixDesc.aspx');">עידכון תיעוד מובנה</a></li>
                             <li><a href="#">עידכון טבלאות</a></li>
                         </ul>
                       </li>

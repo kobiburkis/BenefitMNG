@@ -47,35 +47,6 @@ function getProblemPreserveData(centerID, sourceEnv, other) {
         return "שגיאה";
     }
 }
-
-function saveTreeData(treeID) {
-    if (checkMngMustFields()) {
-        var srch = '';
-        //if ($get('trSrchCenter').style.display == "none")
-        //    srch = getFldJSONsrch(srch, 'fldCenterID', "0", 'int');
-        //else
-        var targetEnv = getTargetEnv();
-        srch = getFldJSONsrch(srch, 'fldCenterID', $get("fldSrchCenterID").value, 'int');
-        srch = getFldJSONsrch(srch, 'fldTargetEnv', targetEnv, 'string');
-        srch = getFldJSONsrch(srch, 'fldMngNote', $get("fldMngNote").value, 'string');
-        var newData = getDataForSaveTree(treeID);
-        srch = getFldJSONsrch(srch, 'doc', newData, 'string');
-
-        var data = getJQAJAX("srvHarel.asmx/updateProblemPreserveTree", '{' + srch + '}', false, 1);
-        if (data && data.data) {
-            $get("commonCtl_treeDataChanged").value = "0";
-            openMsg('עידכון בוצע בהצלחה', 1);
-            getProblemPreserveTrees();
-        }
-        else {
-            if (data && data.err && data.err.length > 0)
-                openMsg(data.err[0]["ErrorMsg"], 1);
-            else
-                openMsg('שגיאה בשמירת שינויים', 1);
-        }
-
-    }
-}
 function getProblemPreserveTrees() {
     if ($get("commonCtl_treeDataChanged").value == "1")
         openMsg('בוצע שינוי במקורות/הליכים - האם לצאת ללא שמירה ?', 2, 'getProblemPreserveTreeAfter();', 'setPreValues();');
@@ -137,6 +108,34 @@ function clearProblemPreserveTrees() {
     $("#centerProblemPreserveTree").jstree("destroy");
     $("#otherValuesTree").jstree("destroy");
     $('#OtherValuesSearch')[0].style.display = "none";
+}
+function saveTreeData(treeID) {
+    if (checkMngMustFields()) {
+        var srch = '';
+        //if ($get('trSrchCenter').style.display == "none")
+        //    srch = getFldJSONsrch(srch, 'fldCenterID', "0", 'int');
+        //else
+        var targetEnv = getTargetEnv();
+        srch = getFldJSONsrch(srch, 'fldCenterID', $get("fldSrchCenterID").value, 'int');
+        srch = getFldJSONsrch(srch, 'fldTargetEnv', targetEnv, 'string');
+        srch = getFldJSONsrch(srch, 'fldMngNote', $get("fldMngNote").value, 'string');
+        var newData = getDataForSaveTree(treeID);
+        srch = getFldJSONsrch(srch, 'doc', newData, 'string');
+
+        var data = getJQAJAX("srvHarel.asmx/updateProblemPreserveTree", '{' + srch + '}', false, 1);
+        if (data && data.data) {
+            $get("commonCtl_treeDataChanged").value = "0";
+            openMsg('עידכון בוצע בהצלחה', 1);
+            getProblemPreserveTrees();
+        }
+        else {
+            if (data && data.err && data.err.length > 0)
+                openMsg(data.err[0]["ErrorMsg"], 1);
+            else
+                openMsg('שגיאה בשמירת שינויים', 1);
+        }
+
+    }
 }
 function dispEditFields(type) {
     $get("trID").style.display = "";

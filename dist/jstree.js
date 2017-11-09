@@ -75,7 +75,7 @@
           * stores all parents nodes types jstree  (used internally)
 		 * @name $.jstree.parentsTypes
         */
-        parentsTypes: ["depr","problem"], 
+        parentsTypes: ["depr","problem","fixDesc"], 
 		path : src && src.indexOf('/') !== -1 ? src.replace(/\/[^\/]+$/,'') : '',
 		idregex : /[\\:&!^|()\[\]<>@*'+~#";.,=\- \/${}%?`]/g,
 		root : '#'
@@ -6886,7 +6886,7 @@
 							if(!ok) { break; }
 						}
 						if(ok) {
-							lastmv = { 'ins' : ins, 'par' : $.jstree.root, 'pos' : 'last' };
+							c = { 'ins' : ins, 'par' : $.jstree.root, 'pos' : 'last' };
 							marker.hide();
 							data.helper.find('.jstree-icon').first().removeClass('jstree-er').addClass('jstree-ok');
 							if (data.event.originalEvent && data.event.originalEvent.dataTransfer) {

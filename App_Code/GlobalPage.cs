@@ -219,4 +219,211 @@ public partial class GlobalPage : System.Web.UI.Page
             }
         }
     }
+    public void loadProblemID(DropDownList ctl,string fldCenterID)
+    {
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+            try
+            {
+                DataTable dt = new DataTable();
+                string sourceEnv = environmentValue();
+                string flag = environmentFlag(sourceEnv);
+                string select = "select pr.fldValueID as fldValueID ,pr.fldValueDesc as fldValueDesc ";
+                string tables = " from benefitMng.dbo.Mng_tblProblemSub ps inner join benefitMng.dbo.Mng_tblCenterProblemSub c";
+                tables += " on ps.fldProblemSubID = c.fldProblemSubID inner join benefitMng.dbo.Mng_tblTables pr ";
+                tables += " on pr.fldTableID = 7 and pr.fldValueID = ps.fldProblemID and ps.fldProblemID = c.fldProblemID";
+                string where = " where c.fldCenterID = " + fldCenterID + " and c.fldDisplayOnAdd>=1 and pr." + flag + " = 'D' and ps." + flag + " = 'D'";
+                where += " and c." + flag + " = 'D'";
+                string orderBy = " order by pr.fldValueDesc ";
+                string groupBy = " group by pr.fldValueID, pr.fldValueDesc ";
+                string query = select + tables + where + groupBy + orderBy;
+                con.Open();
+                using (var cmd = new SqlCommand(query, con))
+                {
+                    dt.Load(cmd.ExecuteReader());
+                }
+
+                ctl.DataSource = dt;
+                ctl.DataTextField = "fldValueDesc";
+                ctl.DataValueField = "fldValueID";
+                ctl.DataBind();
+                ctl.Items.Insert(0, new ListItem("", "0"));
+            }
+            catch (Exception ex)
+            {
+                // Handle the error
+            }
+        }
+    }
+    public void loadProblemSubID(DropDownList ctl, string fldCenterID, string fldProblemID)
+    {
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+            try
+            {
+                DataTable dt = new DataTable();
+                string sourceEnv = environmentValue();
+                string flag = environmentFlag(sourceEnv);
+                string select = "select ps.fldProblemSubID as fldProblemSubID ,ps.fldProblemSub as fldProblemSub ";
+                string tables = " from benefitMng.dbo.Mng_tblProblemSub ps inner join benefitMng.dbo.Mng_tblCenterProblemSub c ";
+                tables += " on ps.fldProblemID=c.fldProblemID and ps.fldProblemSubID=c.fldProblemSubID ";
+                string where = " where c.fldCenterID = " + fldCenterID + " and c.fldProblemID = "+ fldProblemID+" and c.fldDisplayOnAdd>=1 and c." + flag + " = 'D' and ps." + flag + " = 'D'";
+                string orderBy = " order by ps.fldProblemSub ";
+                string query = select + tables + where + orderBy;
+                con.Open();
+                using (var cmd = new SqlCommand(query, con))
+                {
+                    dt.Load(cmd.ExecuteReader());
+                }
+
+                ctl.DataSource = dt;
+                ctl.DataTextField = "fldProblemSub";
+                ctl.DataValueField = "fldProblemSubID";
+                ctl.DataBind();
+                ctl.Items.Insert(0, new ListItem("", "0"));
+            }
+            catch (Exception ex)
+            {
+                // Handle the error
+            }
+        }
+    }
+    public void loadProblemDescID(DropDownList ctl, string fldCenterID)
+    {
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+            try
+            {
+                DataTable dt = new DataTable();
+                string sourceEnv = environmentValue();
+                string flag = environmentFlag(sourceEnv);
+                string select = "select fldValueID,fldValueDesc ";
+                string tables = " from benefitMng.dbo.Mng_tblTables t inner join benefitMng.dbo.Mng_tblCenterProblemDesc c ";
+                tables += " on fldValueID = fldProblemDescID ";
+                string where = " where c.fldCenterID = " + fldCenterID + " and fldTableID=12 and c.fldDisplayOnAdd>=1 and t." + flag + " = 'D' and c." + flag + " = 'D'";
+                string orderBy = " order by c.fldOrderID,fldValueOrderID,fldValueDesc ";
+                string query = select + tables + where + orderBy;
+                con.Open();
+                using (var cmd = new SqlCommand(query, con))
+                {
+                    dt.Load(cmd.ExecuteReader());
+                }
+
+                ctl.DataSource = dt;
+                ctl.DataTextField = "fldValueDesc";
+                ctl.DataValueField = "fldValueID";
+                ctl.DataBind();
+                ctl.Items.Insert(0, new ListItem("", "0"));
+            }
+            catch (Exception ex)
+            {
+                // Handle the error
+            }
+        }
+    }
+    public void loadPreservProcID(DropDownList ctl, string fldCenterID, string fldProblemDescID)
+    {
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+            try
+            {
+                DataTable dt = new DataTable();
+                string sourceEnv = environmentValue();
+                string flag = environmentFlag(sourceEnv);
+                string select = "select p.fldPreserveTypeID as fldPreserveTypeID,fldPreserveTypeDesc ";
+                string tables = " from benefitMng.dbo.Mng_tblCenterPreserveType c inner join benefitMng.dbo.Mng_tblPreserveType p ";
+                tables += " on c.fldPreserveTypeID=p.fldPreserveTypeID inner join benefitMng.dbo.Mng_tblPreserveTypeProblemDesc link ";
+                tables += " on p.fldPreserveTypeID= link.fldPreserveTypeID ";
+                string where = " where c.fldCenterID = " + fldCenterID + " and link.fldProblemDescID = " + fldProblemDescID + " and p.fldDisplayAdd>=1 and c." + flag + " = 'D' and p." + flag + " = 'D'";
+                where += " and link." + flag + " = 'D'";
+                string orderBy = " order by c.fldOrderID,fldPreserveTypeDesc ";
+                string groupBy = " group by p.fldPreserveTypeID,fldPreserveTypeDesc,c.fldOrderID,c.fldCenterID ";
+                string query = select + tables + where + groupBy + orderBy;
+                con.Open();
+                using (var cmd = new SqlCommand(query, con))
+                {
+                    dt.Load(cmd.ExecuteReader());
+                }
+
+                ctl.DataSource = dt;
+                ctl.DataTextField = "fldPreserveTypeDesc";
+                ctl.DataValueField = "fldPreserveTypeID";
+                ctl.DataBind();
+                ctl.Items.Insert(0, new ListItem("", "0"));
+            }
+            catch (Exception ex)
+            {
+                // Handle the error
+            }
+        }
+    }
+    public void loadFixTypeID(DropDownList ctl, string fldCenterID, string fldPreservProcID)
+    {
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+            try
+            {
+                DataTable dt = new DataTable();
+                string sourceEnv = environmentValue();
+                string flag = environmentFlag(sourceEnv);
+                string select = "select fldValueID,fldValueDesc ";
+                string tables = " from benefitMng.dbo.Mng_tblTables t inner join  benefitMng.dbo.Mng_tblCenterFixTypeID  p on t.fldValueID = p.fldFixTypeID ";
+                string where = " where t.fldTableID = 113 and p.fldCenterID = " + fldCenterID + " and p.fldDisplayOnAdd>=1 and t." + flag + " = 'D' and p." + flag + " = 'D'";
+                where += " and (p.fldPreservProcID = " + fldPreservProcID+ " or p.fldPreservProcID = 0 ) ";
+                string orderBy = " order by p.fldOrderID,fldValueOrderID,fldValueDesc ";
+                string groupBy = " group by fldValueID,p.fldOrderID,fldValueOrderID,fldValueDesc ";
+                string query = select + tables + where + groupBy + orderBy;
+                con.Open();
+                using (var cmd = new SqlCommand(query, con))
+                {
+                    dt.Load(cmd.ExecuteReader());
+                }
+
+                ctl.DataSource = dt;
+                ctl.DataTextField = "fldValueDesc";
+                ctl.DataValueField = "fldValueID";
+                ctl.DataBind();
+                ctl.Items.Insert(0, new ListItem("", "0"));
+            }
+            catch (Exception ex)
+            {
+                // Handle the error
+            }
+        }
+    }
+    public void loadResultDiklaID(DropDownList ctl, string fldCenterID, string fldPreservProcID, string fldFixTypeID)
+    {
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+            try
+            {
+                DataTable dt = new DataTable();
+                string sourceEnv = environmentValue();
+                string flag = environmentFlag(sourceEnv);
+                string select = "select fldValueID,fldValueDesc ";
+                string tables = " from benefitMng.dbo.Mng_tblTables t inner join  benefitMng.dbo.Mng_tblCenterResultDikla  p on t.fldValueID = p.fldResultDiklaID ";
+                string where = " where t.fldTableID = 40 and p.fldCenterID = " + fldCenterID + " and p.fldDisplayOnAdd>=1 and t." + flag + " = 'D' and p." + flag + " = 'D'";
+                where += " and (p.fldPreservProcID = " + fldPreservProcID + " or p.fldPreservProcID = 0 )";
+                where += " and (p.fldFixTypeID = " + fldFixTypeID + " or p.fldFixTypeID = 0 )";
+                string orderBy = " order by p.fldOrderID,fldValueOrderID,fldValueDesc ";
+                string groupBy = " group by fldValueID,p.fldOrderID,fldValueOrderID,fldValueDesc ";
+                string query = select + tables + where + groupBy + orderBy;
+                con.Open();
+                using (var cmd = new SqlCommand(query, con))
+                {
+                    dt.Load(cmd.ExecuteReader());
+                }
+
+                ctl.DataSource = dt;
+                ctl.DataTextField = "fldValueDesc";
+                ctl.DataValueField = "fldValueID";
+                ctl.DataBind();
+                ctl.Items.Insert(0, new ListItem("", "0"));
+            }
+            catch (Exception ex)
+            {
+                // Handle the error
+            }
+        }
+    }
 }
