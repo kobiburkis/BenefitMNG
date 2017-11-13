@@ -6,6 +6,7 @@ var centerTreeSearch;
 var otherTreeSearch = { 'case_insensitive': true, 'show_only_matches': true };
 var centerTreeDND = { 'always_copy': false };
 var otherTreeDND = { 'always_copy': true };
+var fixdescItems = 'rename,editData,extraData';
 function onLoad() {
 }
 function getFixDescData(centerID, sourceEnv, other,fldProblemID, fldProblemSubID, fldProblemDescID, fldPreservProcID, fldFixTypeID, fldResultDiklaID) {
@@ -129,7 +130,6 @@ function setPreSrchValues() {
         $get("fldResultDiklaID").value = before_change;
     }
 }
-
 function setFilterParams (){
     var srch = '';
     srch = getFldJSONsrch(srch, 'fldCenterID', $get("fldSrchCenterID").value, 'int');

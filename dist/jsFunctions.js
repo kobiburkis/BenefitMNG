@@ -1,4 +1,4 @@
-﻿var integer_hand = {keypress: bnft_pressNum};
+﻿var integer_hand = { keypress: bnft_pressNum };
 function addIntegerHandler(fieldsList)
 {
     var list = fieldsList.split(',');
@@ -500,8 +500,6 @@ function setExtraDataDiv(obj) {
         }
     }
 }
-
-
 function bnft_pressNum() {
     try {
         var key = event.keyCode;
@@ -606,10 +604,10 @@ function checkContextMenuAvailabilty(data, action) {
     var inst = $.jstree.reference(data.reference),
 	obj = inst.get_node(data.reference);
     var objType = obj.type;
-
     var selectedNode = $get("commonCtl_selectedNode").value;
     if (selectedNode != '')
         return true;
+   /* --No Need This After The CustomMenuFunction
     if ($('#rblScreenMode')[0]) {
         var checked = $('input[type=radio]:checked', '#rblScreenMode').val();
         if (checked == "DeprCenterMode" && "dep" == objType)
@@ -631,6 +629,7 @@ function checkContextMenuAvailabilty(data, action) {
         return true;
     if (("dep,team,".indexOf(objType) > -1) && (action == "duplicate"))
         return true;
+       */
     return false;
 }
 function getContextMenuLabel(data, action) {
@@ -669,6 +668,9 @@ function getNewNodeText(type) {
             break;
         case 'preserve':
             return "הליך חדש";
+            break;
+        case 'fixdesc':
+            return "תיעוד חדש";
             break;
         default:
             return "חדש";
@@ -804,4 +806,164 @@ function checkIsNumbersSequence(field) {
     else
         field.style.backgroundColor = '';
     return false;
+}
+function customMenuItems (obj)
+{
+    var objType = obj.type;
+    let menuItemsCustom = setDefaultMenuItems();
+    try {
+        var menuItemsArrForObj = eval(objType + "Items");
+        if (menuItemsArrForObj.length >0)
+        {
+            var items = Object.keys(menuItemsCustom);
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+                if (menuItemsArrForObj.indexOf(item) < 0)
+                    delete menuItemsCustom[item];
+                }
+            return menuItemsCustom;
+        }
+        else
+            return setDefaultMenuItems();
+
+    } catch (e) {
+        return setDefaultMenuItems();
+    }
+}
+function setDefaultMenuItems() {
+    return {
+        "create_root": {
+            "separator_before": false,
+            "separator_after": false,
+            "_disabled": function (data) {
+                return checkContextMenuAvailabilty(data, "create_root");
+            }, //(this.check("create_node", data.reference, {}, "last")),
+            "label": function (data) {
+                return getContextMenuLabel(data, "create_root");
+            },
+            "action": function (data) {
+                var inst = $.jstree.reference(data.reference),
+                    obj = inst.get_node(data.reference);
+                inst.create_node(obj, { type: obj.type }, "first", function (new_node) {
+                    try {
+                        inst.edit(new_node);
+                    } catch (ex) {
+                        setTimeout(function () { inst.edit(new_node); }, 0);
+                    }
+                });
+            }
+        },
+        "create": {
+            "separator_before": false,
+            "separator_after": true,
+            "_disabled": function (data) {
+                return checkContextMenuAvailabilty(data, "create");
+            },
+            "label": function (data) {
+                return getContextMenuLabel(data, "create");
+            },
+            "action": function (data) {
+                var inst = $.jstree.reference(data.reference),
+                    obj = inst.get_node(data.reference);
+                var nodeType = inst.settings.types[obj.type].valid_children[0];
+                inst.create_node(obj, { type: nodeType }, "last", function (new_node) {
+                    try {
+                        inst.edit(new_node);
+                    } catch (ex) {
+                        setTimeout(function () { inst.edit(new_node); }, 0);
+                    }
+                });
+            }
+        },
+        "duplicate": {
+            "separator_before": false,
+            "separator_after": false,
+            "_disabled": function (data) {
+                return checkContextMenuAvailabilty(data, "duplicate");
+            },
+            "label": function (data) {
+                return getContextMenuLabel(data, "duplicate");
+            },
+            "action": function (data) {
+                var inst = $.jstree.reference(data.reference),
+                    obj = inst.get_node(data.reference);
+                var nodeType = obj.type;
+                var nodeData = obj.data
+                inst.create_node(obj, { type: nodeType, data: nodeData }, "after", function (new_node) {
+                    try {
+                        inst.edit(new_node);
+                    } catch (ex) {
+                        setTimeout(function () { inst.edit(new_node); }, 0);
+                    }
+                });
+            }
+        },
+        "rename": {
+            "separator_before": false,
+            "separator_after": false,
+            "_disabled": function (data) {
+                return checkContextMenuAvailabilty(data, "rename");
+            },
+            "label": "שנה שם",
+            /*!
+            "shortcut"			: 113,
+            "shortcut_label"	: 'F2',
+            "icon"				: "glyphicon glyphicon-leaf",
+            */
+            "action": function (data) {
+                var inst = $.jstree.reference(data.reference),
+                    obj = inst.get_node(data.reference);
+                inst.edit(obj);
+            }
+        },
+        "editData": {
+            "separator_before": false,
+            "separator_after": false,
+            "_disabled": function (data) {
+                return checkContextMenuAvailabilty(data, "editData");
+            }, //(this.check("rename_node", data.reference, this.get_parent(data.reference), "")),
+            "label": "ערוך",
+            "action": function (data) {
+                var inst = $.jstree.reference(data.reference),
+                    obj = inst.get_node(data.reference);
+                setJsonDataToFields(obj);
+                //inst.edit(obj);
+
+            }
+        },
+        "extraData": {
+            "separator_before": false,
+            "separator_after": false,
+            "_disabled": function (data) {
+                return checkContextMenuAvailabilty(data, "extraData");
+            }, //(this.check("rename_node", data.reference, this.get_parent(data.reference), "")),
+            "label": "מידע נוסף",
+            "action": function (data) {
+                var inst = $.jstree.reference(data.reference),
+                    obj = inst.get_node(data.reference);
+                setExtraDataDiv(obj);
+                //inst.edit(obj);
+
+            }
+        },
+        "remove_center": {
+            "separator_before": false,
+            "icon": false,
+            "separator_after": false,
+            "_disabled": function (data) {
+                return checkContextMenuAvailabilty(data, "remove_center");
+            },
+            "label": function (data) {
+                return getContextMenuLabel(data, "remove_center");
+            },
+            "action": function (data) {
+                var inst = $.jstree.reference(data.reference),
+                    obj = inst.get_node(data.reference);
+                var loop = 0;
+                if (($.jstree.parentsTypes.toString().indexOf(obj.type) < 0) && obj.type == 'preserve')
+                    loop = 1;
+                setRemovedNodes(inst, obj, loop);
+            }
+        }
+    };
 }
