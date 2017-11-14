@@ -75,7 +75,7 @@
           * stores all parents nodes types jstree  (used internally)
 		 * @name $.jstree.parentsTypes
         */
-        parentsTypes: ["depr","problem","fixDesc"], 
+        parentsTypes: ["depr","problem","fixdesc"], 
 		path : src && src.indexOf('/') !== -1 ? src.replace(/\/[^\/]+$/,'') : '',
 		idregex : /[\\:&!^|()\[\]<>@*'+~#";.,=\- \/${}%?`]/g,
 		root: '#'
@@ -7964,7 +7964,8 @@
 			return tmp;
 		};
 		this.check = function (chk, obj, par, pos, more) {
-			if(parent.check.call(this, chk, obj, par, pos, more) === false) { return false; }
+		    if (parent.check.call(this, chk, obj, par, pos, more) === false) { return false; }
+		    if (pos == 0 && more && more.ref && more.ref.id.indexOf('999999999') > 0) { return false; }//בדיקה על צומת ראשון במקרה של עץ ריק 
 			obj = obj && obj.id ? obj : this.get_node(obj);
 			par = par && par.id ? par : this.get_node(par);
 			var m = obj && obj.id ? (more && more.origin ? more.origin : $.jstree.reference(obj.id)) : null, tmp, d, i, j;

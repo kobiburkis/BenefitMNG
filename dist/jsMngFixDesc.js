@@ -6,7 +6,7 @@ var centerTreeSearch;
 var otherTreeSearch = { 'case_insensitive': true, 'show_only_matches': true };
 var centerTreeDND = { 'always_copy': false };
 var otherTreeDND = { 'always_copy': true };
-var fixdescItems = 'rename,editData,extraData';
+var fixdescItems = ',create_root,rename,extraData,remove_center,';
 function onLoad() {
 }
 function getFixDescData(centerID, sourceEnv, other,fldProblemID, fldProblemSubID, fldProblemDescID, fldPreservProcID, fldFixTypeID, fldResultDiklaID) {
@@ -130,7 +130,14 @@ function setPreSrchValues() {
         $get("fldResultDiklaID").value = before_change;
     }
 }
-function setFilterParams (){
+function setFilterParams() {
+    clearFixDescTrees();
+    $get("fldProblemID").value = '';
+    $get("fldProblemSubID").value = '';
+    $get("fldProblemDescID").value = '';
+    $get("fldPreservProcID").value = '';
+    $get("fldFixTypeID").value = '';
+    $get("fldResultDiklaID").value = '';
     var srch = '';
     srch = getFldJSONsrch(srch, 'fldCenterID', $get("fldSrchCenterID").value, 'int');
     var data = getJQAJAX("srvHarel.asmx/getCenterType", '{' + srch + '}', false, 1);
@@ -144,14 +151,19 @@ function setFilterParams (){
     else
         openMsg('שגיאה בהגדרות מוקד', 1);
 }
-function dispCenterParams(srvParams,prsParams)
-{
+function dispCenterParams(srvParams, prsParams) {
     $get("trSrvParams").style.display = srvParams;
     $get("trPrsParams").style.display = prsParams;
-    if ($get("IsSrv").value == "1")
+    if ($get("IsSrv").value == "1") {
         reloadProblemCombo();
-    else
+        reloadProblemSubCombo();
+    }
+    else {
         reloadProblemDescCombo();
+        reloadPreservProcCombo();
+        reloadFixTypeCombo();
+        reloadResultDiklaCombo();
+    }
 }
 function reloadProblemCombo() {
         var srch = 'fldSourceEnv=';
@@ -194,4 +206,41 @@ function reloadResultDiklaCombo() {
     var fixType = $get("fldFixTypeID").value == '' ? '0' : $get("fldFixTypeID").value;
     srch = srch + "&fldFixTypeID=" + fixType;
     reloadCombo("frmMngFixDesc", "fldResultDiklaID", srch);
+}
+function saveTreeData(treeID) {
+    if (checkMngMustFields()) {
+        var srch = '';
+        var targetEnv = getTargetEnv();
+        srch = getFldJSONsrch(srch, 'fldCenterID', $get("fldSrchCenterID").value, 'int');
+        srch = getFldJSONsrch(srch, 'fldTargetEnv', targetEnv, 'string');
+        srch = getFldJSONsrch(srch, 'fldMngNote', $get("fldMngNote").value, 'string');
+        var fldProblemID = $get("fldProblemID").value == '' ? '0' : $get("fldProblemID").value;
+        var fldProblemSubID = $get("fldProblemSubID").value == '' ? '0' : $get("fldProblemSubID").value;
+        var fldProblemDescID = $get("fldProblemDescID").value == '' ? '0' : $get("fldProblemDescID").value;
+        var fldPreservProcID = $get("fldPreservProcID").value == '' ? '0' : $get("fldPreservProcID").value;
+        var fldFixTypeID = $get("fldFixTypeID").value == '' ? '0' : $get("fldFixTypeID").value;
+        var fldResultDiklaID = $get("fldResultDiklaID").value == '' ? '0' : $get("fldResultDiklaID").value;
+        srch = getFldJSONsrch(srch, 'fldProblemID', fldProblemID, 'string');
+        srch = getFldJSONsrch(srch, 'fldProblemSubID', fldProblemSubID, 'string');
+        srch = getFldJSONsrch(srch, 'fldProblemDescID', fldProblemDescID, 'string');
+        srch = getFldJSONsrch(srch, 'fldPreservProcID', fldPreservProcID, 'string');
+        srch = getFldJSONsrch(srch, 'fldFixTypeID', fldFixTypeID, 'string');
+        srch = getFldJSONsrch(srch, 'fldResultDiklaID', fldResultDiklaID, 'string');
+        srch = getFldJSONsrch(srch, 'fldIsSrv', $get("IsSrv").value, 'string');
+        var newData = getDataForSaveTree(treeID);
+        srch = getFldJSONsrch(srch, 'doc', newData, 'string');
+        var data = getJQAJAX("srvHarel.asmx/updateFixDescTree", '{' + srch + '}', false, 1);
+        if (data && data.data) {
+            $get("commonCtl_treeDataChanged").value = "0";
+            openMsg('עידכון בוצע בהצלחה', 1);
+            getFixDescTrees();
+        }
+        else {
+            if (data && data.err && data.err.length > 0)
+                openMsg(data.err[0]["ErrorMsg"], 1);
+            else
+                openMsg('שגיאה בשמירת שינויים', 1);
+        }
+
+    }
 }

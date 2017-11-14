@@ -57,7 +57,7 @@ public class srvHarel : System.Web.Services.WebService
 
     }
     [WebMethod(EnableSession = true)]
-    public string getNodeExtraData(string fldNode, string fldSourceEnv, string fldNodeText)
+    public string getNodeExtraData(string fldNode, string fldSourceEnv, string fldNodeText, string fldIsSrv)
     {
         DataSet ds = new DataSet();
         try
@@ -65,7 +65,8 @@ public class srvHarel : System.Web.Services.WebService
             ds = execSP(ds, "data", "BenefitMng.dbo.usp_Mng_getNodeExtraData",
                 new SqlParameter("@fldSourceEnv", fldSourceEnv),
                 new SqlParameter("@fldNodeText", fldNodeText),
-                new SqlParameter("@fldNode", fldNode)
+                new SqlParameter("@fldNode", fldNode),
+                new SqlParameter("@fldIsSrv", fldIsSrv)
                 );
             return Newtonsoft.Json.JsonConvert.SerializeObject(ds, Newtonsoft.Json.Formatting.Indented);
         }
@@ -212,5 +213,38 @@ public class srvHarel : System.Web.Services.WebService
             return Newtonsoft.Json.JsonConvert.SerializeObject(ds, Newtonsoft.Json.Formatting.Indented);
         }
     }
-    #endregion
+    [WebMethod(EnableSession = true)]
+    public string updateFixDescTree(int fldCenterID, string fldTargetEnv, string fldMngNote, string doc, string fldProblemID, string fldProblemSubID,
+       string fldProblemDescID, string fldPreservProcID, string fldFixTypeID, string fldResultDiklaID, string fldIsSrv)
+    {
+        {
+            DataSet ds = new DataSet();
+            DataTable dt = (DataTable)JsonConvert.DeserializeObject(doc, (typeof(DataTable)));
+            SqlParameter DataTblParam = new SqlParameter("@tblFixDesc", SqlDbType.Structured);
+            DataTblParam.Value = dt;
+            try
+            {
+                ds = execSP(ds, "data", "BenefitMng.dbo.usp_Mng_saveFixDescTree",
+                    new SqlParameter("@fldCenterID", fldCenterID),
+                    new SqlParameter("@fldTargetEnv", fldTargetEnv),
+                    new SqlParameter("@fldMngNote", fldMngNote),
+                    new SqlParameter("@fldProblemID", fldProblemID),
+                    new SqlParameter("@fldProblemSubID", fldProblemSubID),
+                    new SqlParameter("@fldProblemDescID", fldProblemDescID),
+                    new SqlParameter("@fldPreservProcID", fldPreservProcID),
+                    new SqlParameter("@fldFixTypeID", fldFixTypeID),
+                    new SqlParameter("@fldResultDiklaID", fldResultDiklaID),
+                    new SqlParameter("@fldIsSrv", fldIsSrv),
+                    DataTblParam
+                    );
+                return Newtonsoft.Json.JsonConvert.SerializeObject(ds, Newtonsoft.Json.Formatting.Indented);
+            }
+            catch (Exception ex)
+            {
+                //log(ex, null);
+                return Newtonsoft.Json.JsonConvert.SerializeObject(ds, Newtonsoft.Json.Formatting.Indented);
+            }
+        }
+    }
+            #endregion
 }

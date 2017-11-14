@@ -235,6 +235,8 @@ function clearSelectedNode(treeID, objID) {
         clearTeamNode();
     if (treeID == 'centerProblemPreserveTree')
         clearPreserveProblemNode();
+    $get("divExtraData").style.display = 'none';
+    $get("divExtraData").innerHTML = '';
     return true;
 }
 function deselectAllNodes(treeID) {
@@ -368,8 +370,10 @@ function getDataForSaveTree(treeID)
     var newData = '[';
     for (var i = 0; i < v.length; i++) {
         //if (typeof (v[i].a_attr.class) != "undefined" && v[i].a_attr.class == "nodeChanged") {
-        var json_data = '{ "id" : ' + JSON.stringify(v[i].id) + ',"parent" : ' + JSON.stringify(v[i].parent) + ' ,"nodeText" : ' + JSON.stringify(v[i].text) + ' ,"data" : ' + JSON.stringify(v[i].data.toString()) + '},';
-        newData = newData + json_data;
+        if (v[i].id.indexOf('999999999') < 0 ) {
+            var json_data = '{ "id" : ' + JSON.stringify(v[i].id) + ',"parent" : ' + JSON.stringify(v[i].parent) + ' ,"nodeText" : ' + JSON.stringify(v[i].text) + ' ,"data" : ' + JSON.stringify(v[i].data.toString()) + '},';
+            newData = newData + json_data;
+        }
         //}
     }
     newData = newData.substring(0, newData.length - 1);
@@ -434,10 +438,12 @@ function setJsonDataToFields(obj,fromNew,treeID) {
     var fields = JSON.parse(jsonData);
     if (obj.type != "dep") {
         $get("commonCtl_selectedNode").value = obj.id;
-        $get("ExtraFields").style.display = "";
-        $get("lblExtraDetailsSpec").innerText = obj.text;
-        if ("team,dep".indexOf(obj.type) < 0)
-            dispEditFields(obj.type);  //Every Frm Must have this function
+        if ($get("ExtraFields")) {
+            $get("ExtraFields").style.display = "";
+            $get("lblExtraDetailsSpec").innerText = obj.text;
+        }
+        if ("problem,preserve".indexOf(obj.type) > -1)
+            dispEditFields(obj.type);  //SpecificFieldDefinition
         if ($get("trID") && $get("trID").style.display == "")//fieldID
         {
             if (obj.id.search(/j\d/i) > -1)
@@ -485,6 +491,10 @@ function setExtraDataDiv(obj) {
     srch = getFldJSONsrch(srch, 'fldSourceEnv', $get("fldSourceEnv").value, 'string');
     srch = getFldJSONsrch(srch, 'fldNode', obj.id, 'string');
     srch = getFldJSONsrch(srch, 'fldNodeText', obj.text, 'string');
+    if ($get("IsSrv"))
+        srch = getFldJSONsrch(srch, 'fldIsSrv', $get("IsSrv").value, 'string');
+    else
+        srch = getFldJSONsrch(srch, 'fldIsSrv', '0', 'string');
     var data = getJQAJAX("srvHarel.asmx/getNodeExtraData", '{' + srch + '}', false, 1);
     if (data && data.data && data.data.length == 1) {
         var html = data.data[0].fldHTML;
@@ -607,6 +617,8 @@ function checkContextMenuAvailabilty(data, action) {
     var selectedNode = $get("commonCtl_selectedNode").value;
     if (selectedNode != '')
         return true;
+
+
    /* --No Need This After The CustomMenuFunction
     if ($('#rblScreenMode')[0]) {
         var checked = $('input[type=radio]:checked', '#rblScreenMode').val();
@@ -644,12 +656,20 @@ function getContextMenuLabel(data, action) {
         return "צור הליך חדש";
     if (("problem,preserve".indexOf(objType) > -1) && (action == "create_root"))
         return "צור מקור חדש";
+    if (("fixdesc".indexOf(objType) > -1) && (action == "create_root"))
+        return "תיעוד חדש";
     if (("dep,team,problem,preserve,center".indexOf(objType) > -1) && (action == "remove_center"))
     {
         if (obj.data && obj.data.toString().indexOf("fldRemove") > -1)
             return "החזר קישור למוקד";
         else
             return "מחק קישור למוקד";
+    }
+    if (("fixdesc".indexOf(objType) > -1) && (action == "remove_center")) {
+        if (obj.data && obj.data.toString().indexOf("fldRemove") > -1)
+            return "הצג בהוספה";
+        else
+            return "הסתר בהוספה";
     }
     if (action == "duplicate")
         return "שכפל";
@@ -753,7 +773,9 @@ function menuMoveToPage(url) {
     window.location.replace(url);
 }
 function checkExtraFieldsMust() {
-    var fields = $get('fstExtraFields').getElementsByClassName('must');
+    var fields;
+    if ($get('fstExtraFields'))
+     fields = $get('fstExtraFields').getElementsByClassName('must');
     var checkMust = true;
     if (fields && fields.length > 0)
     {
@@ -813,12 +835,14 @@ function customMenuItems (obj)
     let menuItemsCustom = setDefaultMenuItems();
     try {
         var menuItemsArrForObj = eval(objType + "Items");
+        if (obj.text == 'לא נמצאו הגדרות מתאימות - ניתן ליצור חדש על ידי לחצן ימני או לגרור קיים')
+            menuItemsArrForObj=',create_root,'
         if (menuItemsArrForObj.length >0)
         {
             var items = Object.keys(menuItemsCustom);
             for (var i = 0; i < items.length; i++) {
                 var item = items[i];
-                if (menuItemsArrForObj.indexOf(item) < 0)
+                if (menuItemsArrForObj.indexOf(',' + item + ',') < 0)
                     delete menuItemsCustom[item];
                 }
             return menuItemsCustom;
@@ -844,7 +868,7 @@ function setDefaultMenuItems() {
             "action": function (data) {
                 var inst = $.jstree.reference(data.reference),
                     obj = inst.get_node(data.reference);
-                inst.create_node(obj, { type: obj.type }, "first", function (new_node) {
+                inst.create_node(obj, { type: obj.type }, "after", function (new_node) {
                     try {
                         inst.edit(new_node);
                     } catch (ex) {

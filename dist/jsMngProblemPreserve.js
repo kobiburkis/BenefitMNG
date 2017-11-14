@@ -6,8 +6,8 @@ var centerTreeSearch;
 var otherTreeSearch = { 'case_insensitive': true, 'show_only_matches': true };
 var centerTreeDND = { 'always_copy': true };
 var otherTreeDND = { 'always_copy': true };
-var preserveItems = 'duplicate,rename,editData,extraData';
-var problemItems = 'create_root,create,rename,duplicate,extraData,editData';
+var preserveItems = ',duplicate,rename,editData,extraData,';
+var problemItems = ',create_root,create,rename,duplicate,extraData,editData,';
 function onLoad() {
     addIntegerHandler("fldDaysDiff,fldSLA,fldSLA2,fldCMIndication,fldCMActionCode,fldDoctorEmplDepartmentIDs,fldDoctorEmplDepartmentIDs2,fldFieldID");
     addMustClass("fldPreserveTigmulID,fldPreserveTypeMrkzID");

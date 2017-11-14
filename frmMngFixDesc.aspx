@@ -28,13 +28,13 @@
                 <asp:Label CssClass="lbl" runat="server" ID="lblSourceEnv" Text="סביבת מקור:" />
              </td>
              <td>
-                <asp:DropDownList id="fldSourceEnv" CssClass="fldTable" runat="server"  OnChange ="reloadCenterCombo();"></asp:DropDownList>              
+                <asp:DropDownList id="fldSourceEnv" CssClass="fldTable" runat="server"  OnChange ="reloadCenterCombo();getFixDescTrees();"></asp:DropDownList>              
             </td>   
                <td style="direction: ltr;">
               <asp:Label CssClass="lbl" runat="server" ID="lblSrchCenterID" Text=":מוקד" />
            </td>
            <td>
-                <asp:DropDownList id="fldSrchCenterID" CssClass="fldTable" runat="server"  OnChange ="setFilterParams();"></asp:DropDownList>              
+                <asp:DropDownList id="fldSrchCenterID" CssClass="fldTable" runat="server"  OnChange ="setFilterParams();getFixDescTrees();"></asp:DropDownList>              
             </td>
             <td>
                <asp:Label CssClass="lbl" runat="server" ID="lblMngNote" Text="הערה ל-MNG:" />
@@ -50,7 +50,7 @@
                 </asp:CheckBoxList>
             </td> 
             <td>
-               <asp:Button ID="btnSaveTree" CssClass="btnH" UseSubmitBehavior="false" runat="server" Text="שמור שינויים" OnClientClick="return saveTreeData('#centerProblemPreserveTree');" />
+               <asp:Button ID="btnSaveTree" CssClass="btnH" UseSubmitBehavior="false" runat="server" Text="שמור שינויים" OnClientClick="return saveTreeData('#centerFixDescTree');" />
             </td>     
         </tr>
         </table>
@@ -74,25 +74,25 @@
                             <asp:Label CssClass="lbl" runat="server" ID="lblProblemDescID" Text="מקור:" />
                         </td>
                         <td>
-                            <asp:DropDownList ID="fldProblemDescID" CssClass="fldTable" runat="server" OnChange="reloadPreservProcCombo();"></asp:DropDownList>
+                            <asp:DropDownList ID="fldProblemDescID" CssClass="fldTable" runat="server" OnChange="reloadPreservProcCombo();getFixDescTrees();"></asp:DropDownList>
                         </td>
                         <td>
                             <asp:Label CssClass="lbl" runat="server" ID="lblPreservProcID" Text="הליך:" />
                         </td>
                         <td>
-                            <asp:DropDownList ID="fldPreservProcID" CssClass="fldTable" runat="server" OnChange="reloadFixTypeCombo();reloadResultDiklaCombo();"></asp:DropDownList>
+                            <asp:DropDownList ID="fldPreservProcID" CssClass="fldTable" runat="server" OnChange="reloadFixTypeCombo();reloadResultDiklaCombo();getFixDescTrees();"></asp:DropDownList>
                         </td>
                          <td>
                             <asp:Label CssClass="lbl" runat="server" ID="lblFixTypeID" Text="סוג טיפול:" />
                         </td>
                         <td>
-                            <asp:DropDownList ID="fldFixTypeID" CssClass="fldTable" runat="server" OnChange="reloadResultDiklaCombo();"></asp:DropDownList>
+                            <asp:DropDownList ID="fldFixTypeID" CssClass="fldTable" runat="server" OnChange="reloadResultDiklaCombo();getFixDescTrees();"></asp:DropDownList>
                         </td>
                         <td>
                             <asp:Label CssClass="lbl" runat="server" ID="lblResultDiklaID" Text="תוצאת שיחה:" />
                         </td>
                         <td>
-                            <asp:DropDownList ID="fldResultDiklaID" CssClass="fldTable" runat="server" OnChange=""></asp:DropDownList>
+                            <asp:DropDownList ID="fldResultDiklaID" CssClass="fldTable" runat="server" OnChange="getFixDescTrees();"></asp:DropDownList>
                         </td>
                     </tr>
                 </table>
@@ -102,7 +102,7 @@
                <div runat="server" class="myTreeLocation" id="centerFixDescTree"></div>
              </td>
                  <%-- Extra Data Div --%>
-                <td style="width: 300px;position: absolute;padding-right: 500px;">
+                <td style="width: 700px;position: absolute;padding-right: 500px;">
                  <div runat="server"  class="content-fields" id="divExtraData" style="display:none"></div>
                 </td>   
                 </tr>

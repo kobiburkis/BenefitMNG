@@ -8,8 +8,8 @@ var centerTreeSearch;
 var otherTreeSearch ={'case_insensitive': true,'show_only_matches': true};
 var centerTreeDND = {};
 var otherTreeDND = { 'always_copy': false };
-var teamItems = 'rename,editData';
-var depItems = 'create_root,create,rename,extraData';
+var teamItems = ',rename,editData,';
+var depItems = ',create_root,create,rename,extraData,';
 var centerItems = 'remove_center';
 
 function onLoad() {
